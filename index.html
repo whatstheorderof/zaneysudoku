@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zaney Sudoku — 400,000 killer sudoku puzzles, every one solvable</title>
+<meta name="description" content="Killer sudoku, dealt fresh. 100,000 puzzles per difficulty, every one checked for a unique solution before you play. Daily puzzle, pencil marks, dark mode.">
+<meta name="theme-color" content="#F6F5EF">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+/* ===================== CONFIG ===================== */
+/* Google AdSense: after your site is approved, paste your IDs below.
+   1. ADSENSE_CLIENT: your publisher ID, e.g. "ca-pub-1234567890123456"
+   2. Slot IDs: create two display ad units in AdSense and paste their slot numbers.
+   Leave blank and all ad containers stay hidden (safe for dev / pre-approval). */
+const CONFIG = {
+  ADSENSE_CLIENT: "",
+  ADSENSE_SLOT_TOP: "",
+  ADSENSE_SLOT_BOTTOM: ""
+};
+/* Apply saved theme before paint to avoid flash */
+try{const t=localStorage.getItem("zs_theme");if(t)document.documentElement.dataset.theme=JSON.parse(t);else if(matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.dataset.theme="dark";}catch(e){}
+</script>
+<style>
+:root{
+  --paper:#F6F5EF;
+  --surface:#FFFFFF;
+  --ink:#20232E;
+  --muted:#6B6F7F;
+  --line:#DBD9CE;
+  --heavy:#20232E;
+  --violet:#5847E0;
+  --violet-ink:#4437C4;
+  --hl:#FFD23F;
+  --err:#D6484F;
+  --cage:#50546A;
+  --radius:14px;
+  --shadow:0 1px 2px rgba(20,22,32,.06), 0 8px 24px rgba(20,22,32,.06);
+}
+[data-theme="dark"]{
+  --paper:#12141C;
+  --surface:#1B1E2A;
+  --ink:#ECEDF3;
+  --muted:#9BA0B2;
+  --line:#2C303F;
+  --heavy:#B7BBCB;
+  --violet:#8B7DFF;
+  --violet-ink:#A79CFF;
+  --hl:#FFD23F;
+  --err:#FF6B72;
+  --cage:#AEB3C6;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--paper);color:var(--ink);
+  min-height:100dvh;display:flex;flex-direction:column;
+  line-height:1.45;
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--violet);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ---------- header ---------- */
+header{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:18px clamp(14px,4vw,32px) 10px;max-width:1060px;margin:0 auto;width:100%;
+}
+.mark{
+  position:relative;display:inline-block;
+  border:2.5px dashed var(--ink);border-radius:12px;
+  padding:7px 16px 8px;
+  font-family:"Bricolage Grotesque",Inter,sans-serif;font-weight:800;
+  font-size:clamp(20px,4.4vw,27px);letter-spacing:.5px;line-height:1;
+  text-decoration:none;color:var(--ink);
+}
+.mark em{font-style:normal;color:var(--violet)}
+.mark .sum{
+  position:absolute;top:-11px;left:12px;
+  background:var(--hl);color:#20232E;
+  font-family:Inter;font-size:12px;font-weight:700;
+  padding:1px 7px;border-radius:7px;letter-spacing:0;
+}
+.tagline{font-size:13px;color:var(--muted);max-width:210px;line-height:1.35}
+nav{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+nav a{
+  text-decoration:none;color:var(--ink);font-weight:600;font-size:14px;
+  padding:7px 13px;border:2.5px dashed transparent;border-radius:10px;
+}
+nav a:hover{color:var(--violet)}
+nav a.on{border-color:var(--ink)}
+#themeBtn{
+  font-size:17px;padding:6px 10px;border-radius:10px;line-height:1;
+}
+#themeBtn:hover{background:var(--surface)}
+
+/* ---------- layout ---------- */
+main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw,32px) 40px}
+.view{display:none}
+.view.on{display:block}
+.ad-slot{
+  display:none;margin:14px auto;max-width:728px;min-height:0;text-align:center;overflow:hidden;
+}
+.ad-slot.live{display:block}
+
+/* ---------- game view ---------- */
+.game-col{max-width:560px;margin:0 auto}
+.toolbar{
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:10px 0 12px;
+}
+.ptitle{font-family:"Bricolage Grotesque",Inter,sans-serif;font-weight:700;font-size:clamp(19px,4.5vw,24px)}
+.psub{font-size:13px;color:var(--muted)}
+.clock{
+  margin-left:auto;display:flex;align-items:center;gap:8px;
+  font-variant-numeric:tabular-nums;font-weight:600;font-size:15px;
+}
+.clock button{font-size:15px;padding:4px 9px;border-radius:8px;background:var(--surface);box-shadow:var(--shadow)}
+
+.board-wrap{position:relative;width:min(94vw,540px);margin:0 auto;user-select:none;-webkit-user-select:none}
+#board{
+  display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(9,1fr);
+  aspect-ratio:1/1;width:100%;
+  background:var(--surface);
+  border:3px solid var(--heavy);border-radius:10px;
+  box-shadow:var(--shadow);
+  touch-action:manipulation;overflow:hidden;
+}
+.cell{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  cursor:pointer;
+}
+.cell.cr{border-right:2px solid var(--heavy)}
+.cell.cb{border-bottom:2px solid var(--heavy)}
+.cell.er{border-right:none}
+.cell.eb{border-bottom:none}
+.cell.peer{background:color-mix(in srgb,var(--violet) 7%,transparent)}
+.cell.same{background:color-mix(in srgb,var(--violet) 18%,transparent)}
+.cell.sel{background:color-mix(in srgb,var(--hl) 42%,transparent);box-shadow:inset 0 0 0 2.5px var(--violet)}
+.cell.errbg{background:color-mix(in srgb,var(--err) 13%,transparent)}
+.cell .v{
+  font-size:clamp(19px,5.3vw,29px);font-weight:600;color:var(--violet-ink);
+  position:relative;z-index:2;line-height:1;
+}
+.cell.given .v{color:var(--ink);font-weight:800}
+.cell.err .v{color:var(--err)}
+.cell .notes{
+  position:absolute;inset:12% 4% 4% 4%;z-index:1;
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
+  font-size:clamp(8px,2vw,11px);font-weight:600;color:var(--muted);
+}
+.cell .notes span{display:flex;align-items:center;justify-content:center;visibility:hidden}
+.cell .notes span.on{visibility:visible}
+.cell.flash{animation:flash .5s ease 3}
+@keyframes flash{50%{background:color-mix(in srgb,var(--err) 35%,transparent)}}
+#cageSvg{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);pointer-events:none;z-index:3}
+#cageSvg path{stroke:var(--cage);stroke-width:2.1;fill:none;stroke-dasharray:6 5;stroke-linecap:round}
+#cageSvg rect{fill:var(--surface)}
+#cageSvg text{fill:var(--cage);font-family:Inter;font-size:24px;font-weight:700}
+
+.dealing{
+  position:absolute;inset:0;z-index:9;border-radius:10px;
+  display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;
+  background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(3px);
+  font-weight:600;
+}
+.dealing.on{display:flex}
+.spin{
+  width:34px;height:34px;border-radius:50%;
+  border:4px dashed var(--violet);animation:spin 1.2s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.paused-cover{
+  position:absolute;inset:0;z-index:8;border-radius:10px;display:none;
+  align-items:center;justify-content:center;background:var(--surface);
+  font-family:"Bricolage Grotesque";font-weight:700;font-size:24px;cursor:pointer;
+}
+.paused-cover.on{display:flex}
+
+/* ---------- pad ---------- */
+.pad{width:min(94vw,540px);margin:14px auto 0;display:grid;grid-template-columns:repeat(9,1fr);gap:6px}
+.key{
+  background:var(--surface);border-radius:10px;box-shadow:var(--shadow);
+  padding:8px 0 5px;display:flex;flex-direction:column;align-items:center;gap:1px;
+  font-weight:700;font-size:clamp(17px,4.6vw,22px);color:var(--ink);
+}
+.key small{font-size:10px;font-weight:600;color:var(--muted)}
+.key:active{transform:translateY(1px)}
+.key.out{opacity:.32}
+.padrow2{width:min(94vw,540px);margin:8px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tool{
+  background:var(--surface);border-radius:10px;box-shadow:var(--shadow);
+  padding:10px 0;font-weight:600;font-size:14px;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.tool.on{box-shadow:inset 0 0 0 2.5px var(--violet);color:var(--violet)}
+.actions{width:min(94vw,540px);margin:14px auto 0;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.actions button{
+  font-size:13.5px;font-weight:600;padding:8px 14px;border-radius:99px;
+  border:1.5px solid var(--line);color:var(--muted);
+}
+.actions button:hover{color:var(--ink);border-color:var(--muted)}
+
+/* ---------- browse ---------- */
+.browse-head{max-width:640px;margin:22px auto 6px;text-align:center}
+.browse-head h1{font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(28px,6vw,42px);line-height:1.08}
+.browse-head h1 em{font-style:normal;color:var(--violet)}
+.browse-head p{color:var(--muted);margin-top:10px;font-size:15px}
+.diff-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;max-width:860px;margin:26px auto 0}
+.dcard{
+  background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:20px 18px 18px;position:relative;border-top:5px solid var(--dc,var(--violet));
+}
+.dcard h2{font-family:"Bricolage Grotesque";font-weight:700;font-size:21px}
+.dcard .meta{font-size:12.5px;color:var(--muted);margin:4px 0 14px}
+.dcard .row{display:flex;gap:8px}
+.dcard input{
+  width:0;flex:1;min-width:0;background:var(--paper);border:1.5px solid var(--line);
+  border-radius:9px;padding:8px 10px;font-size:14px;
+}
+.dcard .go,.dcard .rand{
+  border-radius:9px;padding:8px 13px;font-weight:700;font-size:14px;white-space:nowrap;
+}
+.dcard .go{background:var(--ink);color:var(--paper)}
+.dcard .rand{border:1.5px dashed var(--muted);color:var(--ink)}
+.dcard .go:hover{background:var(--violet)}
+.browse-note{max-width:640px;margin:30px auto 0;font-size:13.5px;color:var(--muted);text-align:center;line-height:1.6}
+
+/* ---------- help ---------- */
+.help{max-width:640px;margin:20px auto}
+.help h1{font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(26px,5vw,34px);margin-bottom:14px}
+.help h2{font-family:"Bricolage Grotesque";font-weight:700;font-size:20px;margin:26px 0 8px}
+.help p,.help li{font-size:15px;color:var(--ink)}
+.help ul{padding-left:20px;display:grid;gap:6px;margin-top:6px}
+.help .tip{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px;margin-top:10px;font-size:14px}
+.help .tip b{color:var(--violet)}
+
+/* ---------- modal / toast ---------- */
+.modal{
+  position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
+  background:rgba(10,11,18,.45);padding:20px;
+}
+.modal.on{display:flex}
+.modal .card{
+  background:var(--surface);border-radius:18px;box-shadow:var(--shadow);
+  padding:30px 28px;max-width:380px;width:100%;text-align:center;
+  border:2.5px dashed var(--violet);position:relative;
+}
+.modal .card .sumbadge{
+  position:absolute;top:-13px;left:22px;background:var(--hl);color:#20232E;
+  font-size:13px;font-weight:700;padding:2px 9px;border-radius:8px;
+}
+.modal h2{font-family:"Bricolage Grotesque";font-weight:800;font-size:28px}
+.modal p{color:var(--muted);margin:8px 0 20px;font-size:15px}
+.modal .mbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.modal .mbtns button{border-radius:99px;padding:10px 18px;font-weight:700;font-size:14px}
+.modal .primary{background:var(--ink);color:var(--paper)}
+.modal .primary:hover{background:var(--violet)}
+.modal .ghost{border:1.5px solid var(--line)}
+#toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:var(--paper);font-size:14px;font-weight:600;
+  padding:10px 18px;border-radius:99px;opacity:0;pointer-events:none;
+  transition:.25s;z-index:60;max-width:90vw;text-align:center;
+}
+#toast.on{opacity:1;transform:translateX(-50%)}
+
+footer{
+  padding:26px 20px 34px;text-align:center;font-size:12.5px;color:var(--muted);
+}
+footer a{color:var(--muted)}
+@media (max-width:640px){
+  .tagline{display:none}
+  nav{margin-left:0;width:100%;justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+<header>
+  <a class="mark" href="#/daily">ZANEY <em>SUDOKU</em><span class="sum">45</span></a>
+  <div class="tagline">Killer sudoku, dealt fresh and checked solvable — every single time.</div>
+  <nav>
+    <a href="#/daily" id="navDaily">Daily</a>
+    <a href="#/browse" id="navBrowse">Browse puzzles</a>
+    <a href="#/help" id="navHelp">How to play</a>
+    <button id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">◐</button>
+  </nav>
+</header>
+
+<div class="ad-slot" id="adTop"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
+
+<main>
+  <!-- ================= GAME ================= -->
+  <section class="view" id="viewGame">
+    <div class="game-col">
+      <div class="toolbar">
+        <div>
+          <div class="ptitle" id="pTitle">—</div>
+          <div class="psub" id="pSub"></div>
+        </div>
+        <div class="clock">
+          <span id="clockTxt">0:00</span>
+          <button id="pauseBtn" title="Pause" aria-label="Pause">⏸</button>
+        </div>
+      </div>
+      <div class="board-wrap">
+        <div id="board" tabindex="0" aria-label="Killer sudoku board"></div>
+        <svg id="cageSvg" viewBox="0 0 900 900" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="paused-cover" id="pausedCover">Paused — tap to resume</div>
+        <div class="dealing" id="dealing"><div class="spin"></div><span id="dealTxt">Dealing puzzle…</span></div>
+      </div>
+      <div class="pad" id="pad"></div>
+      <div class="padrow2">
+        <button class="tool" id="noteBtn">✏️ Notes <span style="font-size:11px;color:var(--muted)">(N)</span></button>
+        <button class="tool" id="eraseBtn">⌫ Erase</button>
+        <button class="tool" id="undoBtn">↩ Undo</button>
+      </div>
+      <div class="actions">
+        <button id="checkBtn">Check cells</button>
+        <button id="revealBtn">Reveal cell</button>
+        <button id="restartBtn">Restart</button>
+        <button id="shareBtn">Share puzzle</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BROWSE ================= -->
+  <section class="view" id="viewBrowse">
+    <div class="browse-head">
+      <h1>400,000 puzzles.<br><em>Zero dead ends.</em></h1>
+      <p>100,000 killer sudokus per difficulty. Each one is verified to have exactly one solution before it reaches your screen — so if you're stuck, it's solvable, promise.</p>
+    </div>
+    <div class="diff-grid" id="diffGrid"></div>
+    <p class="browse-note">Puzzle numbers are permanent: #4,821 on Hard is the same puzzle for everyone, forever. Send a friend the link and race them.</p>
+  </section>
+
+  <!-- ================= HELP ================= -->
+  <section class="view" id="viewHelp">
+    <div class="help">
+      <h1>How to play killer sudoku</h1>
+      <p>Killer sudoku is normal sudoku with one twist: there are no given digits to start from (mostly). Instead, the grid is carved into dashed <b>cages</b>, and each cage tells you what its digits add up to.</p>
+      <h2>The rules</h2>
+      <ul>
+        <li>Every row, column and 3×3 box contains the digits 1–9 exactly once.</li>
+        <li>The digits inside each dashed cage add up to the small number in its corner.</li>
+        <li>A digit can't repeat inside a cage.</li>
+      </ul>
+      <h2>Three tips to get you started</h2>
+      <div class="tip"><b>Learn the forced combos.</b> A 2-cell cage summing to 3 can only be 1+2. Sum 4 is 1+3. Sum 16 is 7+9, and 17 is 8+9. These are your free squares.</div>
+      <div class="tip"><b>Use the rule of 45.</b> Every row, column and box sums to 45. If a box is covered by cages totalling 43 plus one cell poking out, that cell's cage overflow tells you its value.</div>
+      <div class="tip"><b>Pencil marks are not cheating.</b> Tap ✏️ Notes (or press N) and jot candidates. Placing a digit automatically tidies your notes in that row, column, box and cage.</div>
+      <h2>Where do 400,000 puzzles come from?</h2>
+      <p>Every puzzle number is dealt deterministically from its number — the same number always produces the same puzzle, on any device. As it's dealt, a solver verifies the puzzle has exactly one solution before you see it. No broken puzzles, no ambiguous endings.</p>
+      <h2>Controls</h2>
+      <ul>
+        <li>Arrow keys move around the grid, 1–9 places a digit.</li>
+        <li>Hold Shift with a digit (or toggle Notes) for pencil marks.</li>
+        <li>Backspace erases, U undoes, N toggles note mode, Space pauses.</li>
+      </ul>
+      <h2>Go deeper</h2>
+      <p>Three guides live alongside the game: a <a href="killer-sudoku-rules.html">complete beginner's guide</a>, the <a href="killer-sudoku-combinations.html">cage combinations cheat sheet</a> (every sum, every cage size, forced combos highlighted), and the <a href="killer-sudoku-strategy.html">strategy guide</a> covering the rule of 45, innies and outies.</p>
+    </div>
+  </section>
+</main>
+
+<div class="ad-slot" id="adBottom"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
+
+<footer>
+  Zaney Sudoku · every puzzle checked solvable at deal time ·
+  <a href="killer-sudoku-rules.html">rules</a> ·
+  <a href="killer-sudoku-combinations.html">combinations</a> ·
+  <a href="killer-sudoku-strategy.html">strategy</a> ·
+  <a href="privacy.html">privacy</a> · made in London
+</footer>
+
+<div class="modal" id="winModal">
+  <div class="card">
+    <span class="sumbadge">45 ✓</span>
+    <h2>Solved!</h2>
+    <p id="winTxt"></p>
+    <div class="mbtns">
+      <button class="primary" id="nextBtn">Next puzzle</button>
+      <button class="ghost" id="browseBtn2">Browse</button>
+    </div>
+  </div>
+</div>
+<div id="toast" role="status"></div>
+<script>
+"use strict";
+/* =====================================================================
+   PUZZLE ENGINE
+   Deterministic: puzzle N at difficulty D is identical on every device.
+   Guaranteed finishable: cages are carved from a real solved grid, so a
+   solution always exists; a counting solver then verifies uniqueness,
+   splitting cages deterministically until exactly one solution remains.
+   ===================================================================== */
+
+const DIFFS = ["easy","medium","hard","expert"];
+const DIFF_CFG = {
+  easy:   { sizes:[1,2,2,2,3,3], mergeSingles:false, maxMerge:0, reveal:5 },
+  medium: { sizes:[2,2,3,3,3,4], mergeSingles:true,  maxMerge:4, reveal:0 },
+  hard:   { sizes:[2,3,3,4,4,5], mergeSingles:true,  maxMerge:5, reveal:0 },
+  expert: { sizes:[3,4,4,5,5,6], mergeSingles:true,  maxMerge:6, reveal:0 }
+};
+const DIFF_LABEL = { easy:"Easy", medium:"Medium", hard:"Hard", expert:"Expert" };
+const MAX_NUM = 100000;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function seedFor(num,diff){let h=num>>>0;h=Math.imul(h^0x9E3779B9,2654435761)>>>0;h=(h^Math.imul(DIFFS.indexOf(diff)+1,0x85EBCA6B))>>>0;return h||1;}
+function shuffle(a,rng){for(let i=a.length-1;i>0;i--){const j=(rng()*(i+1))|0;const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function neighbors(c){const r=(c/9)|0,k=c%9,out=[];if(r>0)out.push(c-9);if(r<8)out.push(c+9);if(k>0)out.push(c-1);if(k<8)out.push(c+1);return out;}
+function connectedSet(cells){if(cells.length<=1)return true;const set=new Set(cells),seen=new Set([cells[0]]),q=[cells[0]];while(q.length){const c=q.pop();for(const n of neighbors(c))if(set.has(n)&&!seen.has(n)){seen.add(n);q.push(n);}}return seen.size===cells.length;}
+
+/* Complete solved grid via seeded backtracking */
+function genSolution(rng){
+  const g=new Uint8Array(81),rows=new Int16Array(9),cols=new Int16Array(9),boxes=new Int16Array(9);
+  const digits=[1,2,3,4,5,6,7,8,9];
+  function fill(i){
+    if(i===81)return true;
+    const r=(i/9)|0,c=i%9,b=((r/3)|0)*3+((c/3)|0);
+    const order=shuffle(digits.slice(),rng);
+    for(const d of order){
+      const bit=1<<d;
+      if((rows[r]|cols[c]|boxes[b])&bit)continue;
+      rows[r]|=bit;cols[c]|=bit;boxes[b]|=bit;g[i]=d;
+      if(fill(i+1))return true;
+      rows[r]^=bit;cols[c]^=bit;boxes[b]^=bit;g[i]=0;
+    }
+    return false;
+  }
+  fill(0);
+  return g;
+}
+
+/* Carve the grid into cages. No digit repeats within a cage (checked
+   against the solution), so the killer rule always holds. */
+function buildCages(sol,rng,cfg){
+  const cageOf=new Int16Array(81).fill(-1);
+  const list=[];
+  const order=shuffle([...Array(81).keys()],rng);
+  for(const s of order){
+    if(cageOf[s]!==-1)continue;
+    const id=list.length,cells=[s];cageOf[s]=id;
+    let digs=1<<sol[s];
+    const target=cfg.sizes[(rng()*cfg.sizes.length)|0];
+    while(cells.length<target){
+      const opts=[];
+      for(const c of cells)for(const n of neighbors(c))
+        if(cageOf[n]===-1&&!(digs&(1<<sol[n]))&&opts.indexOf(n)===-1)opts.push(n);
+      if(!opts.length)break;
+      const p=opts[(rng()*opts.length)|0];
+      cageOf[p]=id;cells.push(p);digs|=1<<sol[p];
+    }
+    list.push(cells);
+  }
+  if(cfg.mergeSingles){
+    for(let id=0;id<list.length;id++){
+      if(list[id].length!==1)continue;
+      const c=list[id][0],dbit=1<<sol[c];
+      for(const n of neighbors(c)){
+        const t=cageOf[n];if(t===id)continue;
+        const tc=list[t];if(!tc.length||tc.length>=cfg.maxMerge)continue;
+        let digs=0;for(const x of tc)digs|=1<<sol[x];
+        if(digs&dbit)continue;
+        tc.push(c);cageOf[c]=t;list[id]=[];break;
+      }
+    }
+  }
+  const cages=[];
+  for(const cells of list){
+    if(!cells.length)continue;
+    cells.sort((a,b)=>a-b);
+    cages.push({cells,sum:cells.reduce((s,c)=>s+sol[c],0)});
+  }
+  const cOf=new Int16Array(81);
+  cages.forEach((g,i)=>g.cells.forEach(c=>cOf[c]=i));
+  return {cages,cageOf:cOf};
+}
+
+/* Count solutions (stop at 2). MRV cell selection + cage sum bounds. */
+function countSolutions(cages,cageOf,limit,budget){
+  limit=limit||2;budget=budget||40000;
+  const rows=new Int16Array(9),cols=new Int16Array(9),boxes=new Int16Array(9);
+  const used=new Int16Array(cages.length),left=new Int16Array(cages.length),rem=new Int16Array(cages.length);
+  cages.forEach((g,i)=>{left[i]=g.cells.length;rem[i]=g.sum;});
+  const val=new Uint8Array(81);
+  let count=0,nodes=0,abort=false;
+  const sols=[];
+  function boundsOK(mask,k,target){
+    if(k===0)return target===0;
+    let mn=0,n=0;
+    for(let d=1;d<=9&&n<k;d++)if(!(mask&(1<<d))){mn+=d;n++;}
+    if(n<k||mn>target)return false;
+    let mx=0;n=0;
+    for(let d=9;d>=1&&n<k;d--)if(!(mask&(1<<d))){mx+=d;n++;}
+    return mx>=target;
+  }
+  function cand(i){
+    const r=(i/9)|0,c=i%9,b=((r/3)|0)*3+((c/3)|0),g=cageOf[i];
+    let m=0;
+    for(let d=1;d<=9;d++){
+      const bit=1<<d;
+      if((rows[r]|cols[c]|boxes[b]|used[g])&bit)continue;
+      const rr=rem[g]-d;
+      if(rr<0)continue;
+      if(!boundsOK(used[g]|bit,left[g]-1,rr))continue;
+      m|=bit;
+    }
+    return m;
+  }
+  function search(){
+    if(abort||count>=limit)return;
+    if(++nodes>budget){abort=true;return;}
+    let best=-1,bm=0,bc=10;
+    for(let i=0;i<81;i++){
+      if(val[i])continue;
+      const m=cand(i);
+      let c=0;for(let d=1;d<=9;d++)if(m&(1<<d))c++;
+      if(c===0)return;
+      if(c<bc){bc=c;best=i;bm=m;if(c===1)break;}
+    }
+    if(best===-1){count++;if(sols.length<2)sols.push(val.slice());return;}
+    const r=(best/9)|0,c=best%9,b=((r/3)|0)*3+((c/3)|0),g=cageOf[best];
+    for(let d=1;d<=9;d++){
+      const bit=1<<d;
+      if(!(bm&bit))continue;
+      val[best]=d;rows[r]|=bit;cols[c]|=bit;boxes[b]|=bit;used[g]|=bit;rem[g]-=d;left[g]--;
+      search();
+      val[best]=0;rows[r]^=bit;cols[c]^=bit;boxes[b]^=bit;used[g]^=bit;rem[g]+=d;left[g]++;
+      if(abort||count>=limit)return;
+    }
+  }
+  search();
+  return {count,aborted:abort,sols};
+}
+
+/* Carve one cell out of its cage into a singleton (its sum pins the true
+   digit, killing the alternative solution). Remaining cells re-form as
+   connected cages. Deterministic. */
+function peelCell(P,c){
+  const gi=P.cageOf[c],g=P.cages[gi];
+  if(g.cells.length<2)return false;
+  const rest=g.cells.filter(x=>x!==c);
+  const parts=[[c]];
+  const remaining=new Set(rest);
+  while(remaining.size){
+    const start=remaining.values().next().value;
+    const comp=[start];remaining.delete(start);
+    const q=[start];
+    while(q.length){
+      const x=q.pop();
+      for(const n of neighbors(x))if(remaining.has(n)){remaining.delete(n);comp.push(n);q.push(n);}
+    }
+    comp.sort((a,b)=>a-b);
+    parts.push(comp);
+  }
+  P.cages.splice(gi,1,...parts.map(cells=>({cells,sum:cells.reduce((s,x)=>s+P.sol[x],0)})));
+  P.cages.forEach((cg,i)=>cg.cells.forEach(x=>P.cageOf[x]=i));
+  return true;
+}
+
+/* Deterministically split the largest cage: peel off a cell whose removal
+   keeps the cage connected. Every split adds information, so the loop
+   converges to a unique solution. */
+function splitOne(P){
+  let bi=-1;
+  for(let i=0;i<P.cages.length;i++){
+    const L=P.cages[i].cells.length;
+    if(L<2)continue;
+    if(bi===-1||L>P.cages[bi].cells.length)bi=i;
+  }
+  if(bi===-1)return false;
+  const g=P.cages[bi];
+  for(let k=g.cells.length-1;k>=0;k--){
+    const c=g.cells[k];
+    const rest=g.cells.filter(x=>x!==c);
+    if(connectedSet(rest)){
+      g.cells=rest;g.sum-=P.sol[c];
+      P.cages.push({cells:[c],sum:P.sol[c]});
+      P.cageOf[c]=P.cages.length-1;
+      return true;
+    }
+  }
+  return false;
+}
+
+function dealPuzzle(num,diff){
+  const rng=mulberry32(seedFor(num,diff));
+  const sol=genSolution(rng);
+  const cfg=DIFF_CFG[diff];
+  const built=buildCages(sol,rng,cfg);
+  const P={sol,cages:built.cages,cageOf:built.cageOf};
+  for(let a=0;a<80;a++){
+    const r=countSolutions(P.cages,P.cageOf);
+    if(r.count===1&&!r.aborted)break;
+    if(r.count>=2&&r.sols.length===2){
+      let pick=-1;
+      for(let i=0;i<81;i++)if(r.sols[0][i]!==r.sols[1][i]){pick=i;break;}
+      if(pick>=0&&peelCell(P,pick))continue;
+    }
+    if(!splitOne(P))break;
+  }
+  const given=new Uint8Array(81);
+  if(cfg.reveal){
+    const ord=shuffle([...Array(81).keys()],rng);
+    for(let i=0;i<cfg.reveal;i++)given[ord[i]]=1;
+  }
+  return {num,diff,sol,cages:P.cages,cageOf:P.cageOf,given};
+}
+
+/* Daily: number + difficulty derive from the UTC date */
+const DAILY_EPOCH=Date.UTC(2026,0,1);
+function dailyInfo(){
+  const dayN=Math.floor((Date.now()-DAILY_EPOCH)/86400000)+1;
+  const wd=new Date().getUTCDay(); // 0 Sun … 6 Sat
+  const diff=(wd===1||wd===2)?"easy":(wd===3||wd===4)?"medium":(wd===5||wd===6)?"hard":"expert";
+  return {dayN,num:900000+dayN,diff};
+}
+/* =====================================================================
+   UI
+   ===================================================================== */
+const $=s=>document.querySelector(s);
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},
+  del(k){try{localStorage.removeItem(k);}catch(e){}}
+};
+
+let G=null;            // current game
+let cellEls=[];
+let clockInt=null;
+let noteMode=false;
+
+/* ---------- board DOM ---------- */
+function buildBoardDom(){
+  const board=$("#board");
+  board.innerHTML="";cellEls=[];
+  for(let i=0;i<81;i++){
+    const r=(i/9)|0,c=i%9;
+    const el=document.createElement("div");
+    el.className="cell";
+    if(c===2||c===5)el.classList.add("cr");
+    if(r===2||r===5)el.classList.add("cb");
+    if(c===8)el.classList.add("er");
+    if(r===8)el.classList.add("eb");
+    const notes=document.createElement("div");notes.className="notes";
+    for(let d=1;d<=9;d++){const s=document.createElement("span");s.textContent=d;notes.appendChild(s);}
+    const v=document.createElement("div");v.className="v";
+    el.appendChild(notes);el.appendChild(v);
+    el.addEventListener("pointerdown",e=>{e.preventDefault();select(i);});
+    board.appendChild(el);cellEls.push(el);
+  }
+}
+
+function drawCages(){
+  const svg=$("#cageSvg");
+  const S=100,inset=7;
+  let path="";
+  const diffAt=(i,j)=>j<0||G.cageOf[i]!==G.cageOf[j];
+  for(let i=0;i<81;i++){
+    const r=(i/9)|0,c=i%9,x=c*S,y=r*S;
+    const up=diffAt(i,r>0?i-9:-1),dn=diffAt(i,r<8?i+9:-1),
+          lf=diffAt(i,c>0?i-1:-1),rt=diffAt(i,c<8?i+1:-1);
+    if(up)path+=`M${x+(lf?inset:0)} ${y+inset}H${x+S-(rt?inset:0)}`;
+    if(dn)path+=`M${x+(lf?inset:0)} ${y+S-inset}H${x+S-(rt?inset:0)}`;
+    if(lf)path+=`M${x+inset} ${y+(up?inset:0)}V${y+S-(dn?inset:0)}`;
+    if(rt)path+=`M${x+S-inset} ${y+(up?inset:0)}V${y+S-(dn?inset:0)}`;
+  }
+  let labels="";
+  for(const g of G.cages){
+    const a=g.cells[0],r=(a/9)|0,c=a%9;
+    const tx=c*100+11,ty=r*100+30;
+    const w=String(g.sum).length*14+8;
+    labels+=`<rect x="${c*100+6}" y="${r*100+8}" width="${w}" height="27" rx="5"></rect>`;
+    labels+=`<text x="${tx}" y="${ty}">${g.sum}</text>`;
+  }
+  svg.innerHTML=`<path d="${path}"></path>${labels}`;
+}
+
+/* ---------- errors / win ---------- */
+function computeErrors(){
+  const err=new Set(),V=G.val;
+  const mark=u=>{
+    const seen={};
+    for(const i of u){const v=V[i];if(!v)continue;
+      if(seen[v]!=null){err.add(i);err.add(seen[v]);}else seen[v]=i;}
+  };
+  for(let r=0;r<9;r++)mark(Array.from({length:9},(_,c)=>r*9+c));
+  for(let c=0;c<9;c++)mark(Array.from({length:9},(_,r)=>r*9+c));
+  for(let b=0;b<9;b++){const br=((b/3)|0)*3,bc=(b%3)*3,u=[];
+    for(let r=0;r<3;r++)for(let c=0;c<3;c++)u.push((br+r)*9+bc+c);mark(u);}
+  for(const g of G.cages){
+    mark(g.cells);
+    let sum=0,filled=0;
+    for(const i of g.cells)if(V[i]){sum+=V[i];filled++;}
+    if(sum>g.sum||(filled===g.cells.length&&sum!==g.sum))
+      g.cells.forEach(i=>{if(V[i])err.add(i);});
+  }
+  return err;
+}
+function isWon(){
+  for(let i=0;i<81;i++)if(!G.val[i])return false;
+  return computeErrors().size===0;
+}
+
+/* ---------- render ---------- */
+function refresh(){
+  const err=computeErrors();
+  const selVal=G.sel>=0?G.val[G.sel]:0;
+  const selR=(G.sel/9)|0,selC=G.sel%9,selB=((selR/3)|0)*3+((selC/3)|0);
+  for(let i=0;i<81;i++){
+    const el=cellEls[i],v=G.val[i];
+    el.querySelector(".v").textContent=v||"";
+    const spans=el.querySelectorAll(".notes span");
+    for(let d=1;d<=9;d++)spans[d-1].classList.toggle("on",!v&&!!(G.notes[i]&(1<<d)));
+    const r=(i/9)|0,c=i%9,b=((r/3)|0)*3+((c/3)|0);
+    el.classList.toggle("given",!!G.given[i]);
+    el.classList.toggle("sel",i===G.sel);
+    el.classList.toggle("peer",G.sel>=0&&i!==G.sel&&(r===selR||c===selC||b===selB||G.cageOf[i]===G.cageOf[G.sel]));
+    el.classList.toggle("same",!!(selVal&&v===selVal&&i!==G.sel));
+    el.classList.toggle("err",err.has(i));
+    el.classList.toggle("errbg",err.has(i));
+  }
+  const counts=new Array(10).fill(0);
+  for(let i=0;i<81;i++)counts[G.val[i]]++;
+  document.querySelectorAll(".key").forEach((k,idx)=>{
+    const rem=9-counts[idx+1];
+    k.querySelector("small").textContent=rem>0?rem+" left":"done";
+    k.classList.toggle("out",rem<=0);
+  });
+}
+
+/* ---------- moves ---------- */
+function progKey(){return "zs_prog_"+G.diff+"_"+G.num;}
+function save(){store.set(progKey(),{v:Array.from(G.val),n:Array.from(G.notes),t:G.elapsed,done:G.done});}
+function snapshot(){G.undo.push({v:G.val.slice(),n:G.notes.slice()});if(G.undo.length>300)G.undo.shift();}
+function select(i){if(G.done)return;G.sel=i;$("#board").focus({preventScroll:true});refresh();}
+function place(d){
+  if(!G||G.done||G.sel<0||G.given[G.sel])return;
+  snapshot();
+  if(noteMode&&d>0&&!G.val[G.sel]){
+    G.notes[G.sel]^= (1<<d);
+  }else if(d===0){
+    G.val[G.sel]=0;G.notes[G.sel]=0;
+  }else{
+    G.val[G.sel]=d;G.notes[G.sel]=0;
+    const r=(G.sel/9)|0,c=G.sel%9,b=((r/3)|0)*3+((c/3)|0);
+    for(let i=0;i<81;i++){
+      const ri=(i/9)|0,ci=i%9,bi=((ri/3)|0)*3+((ci/3)|0);
+      if(ri===r||ci===c||bi===b||G.cageOf[i]===G.cageOf[G.sel])G.notes[i]&=~(1<<d);
+    }
+  }
+  refresh();save();
+  if(isWon())win();
+}
+function undoMove(){
+  if(!G||!G.undo.length||G.done)return;
+  const s=G.undo.pop();G.val=s.v;G.notes=s.n;refresh();save();
+}
+
+/* ---------- timer ---------- */
+function fmtTime(s){const m=(s/60)|0;return m+":"+String(s%60).padStart(2,"0");}
+function startClock(){
+  stopClock();
+  clockInt=setInterval(()=>{
+    if(!G||G.paused||G.done)return;
+    G.elapsed++;$("#clockTxt").textContent=fmtTime(G.elapsed);
+    if(G.elapsed%15===0)save();
+  },1000);
+}
+function stopClock(){if(clockInt){clearInterval(clockInt);clockInt=null;}}
+function setPaused(p){
+  if(!G||G.done)return;
+  G.paused=p;
+  $("#pausedCover").classList.toggle("on",p);
+  $("#pauseBtn").textContent=p?"▶":"⏸";
+}
+
+/* ---------- open / win ---------- */
+function puzzleTitle(){
+  if(G.isDaily)return "Daily #"+G.dayN;
+  return DIFF_LABEL[G.diff]+" #"+G.num.toLocaleString("en-GB");
+}
+function openPuzzle(num,diff,daily,dayN){
+  if(G&&G.num===num&&G.diff===diff)return;
+  stopClock();
+  buildBoardDom();
+  $("#dealing").classList.add("on");
+  $("#dealTxt").textContent="Dealing "+(daily?"the daily":DIFF_LABEL[diff].toLowerCase()+" #"+num.toLocaleString("en-GB"))+"…";
+  $("#pTitle").textContent="";$("#pSub").textContent="";
+  setTimeout(()=>{
+    const P=dealPuzzle(num,diff);
+    G={...P,isDaily:!!daily,dayN,
+       val:new Uint8Array(81),notes:new Uint16Array(81),
+       sel:-1,undo:[],elapsed:0,paused:false,done:false};
+    for(let i=0;i<81;i++)if(G.given[i])G.val[i]=G.sol[i];
+    const saved=store.get(progKey(),null);
+    if(saved&&saved.v&&!saved.done){
+      for(let i=0;i<81;i++)if(!G.given[i]){G.val[i]=saved.v[i]||0;G.notes[i]=saved.n[i]||0;}
+      G.elapsed=saved.t||0;
+    }
+    drawCages();
+    $("#pTitle").textContent=puzzleTitle();
+    $("#pSub").textContent=G.isDaily
+      ? DIFF_LABEL[G.diff]+" · "+new Date().toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})
+      : G.cages.length+" cages · unique solution verified";
+    $("#clockTxt").textContent=fmtTime(G.elapsed);
+    $("#dealing").classList.remove("on");
+    setPaused(false);refresh();startClock();
+  },30);
+}
+function win(){
+  G.done=true;save();stopClock();
+  $("#winTxt").textContent=puzzleTitle()+" solved in "+fmtTime(G.elapsed)+". Every row, box and cage checks out.";
+  $("#winModal").classList.add("on");
+}
+/* ---------- pad / buttons ---------- */
+function buildPad(){
+  const pad=$("#pad");pad.innerHTML="";
+  for(let d=1;d<=9;d++){
+    const k=document.createElement("button");
+    k.className="key";k.innerHTML=d+"<small></small>";
+    k.addEventListener("pointerdown",e=>{e.preventDefault();place(d);});
+    pad.appendChild(k);
+  }
+}
+function toast(msg){
+  const t=$("#toast");t.textContent=msg;t.classList.add("on");
+  clearTimeout(t._to);t._to=setTimeout(()=>t.classList.remove("on"),2200);
+}
+
+$("#noteBtn").addEventListener("click",()=>{noteMode=!noteMode;$("#noteBtn").classList.toggle("on",noteMode);});
+$("#eraseBtn").addEventListener("click",()=>place(0));
+$("#undoBtn").addEventListener("click",undoMove);
+$("#pauseBtn").addEventListener("click",()=>setPaused(!G.paused));
+$("#pausedCover").addEventListener("click",()=>setPaused(false));
+$("#restartBtn").addEventListener("click",()=>{
+  if(!G)return;
+  snapshot();
+  for(let i=0;i<81;i++)if(!G.given[i]){G.val[i]=0;G.notes[i]=0;}
+  G.elapsed=0;G.done=false;$("#clockTxt").textContent="0:00";
+  refresh();save();startClock();toast("Puzzle restarted");
+});
+$("#checkBtn").addEventListener("click",()=>{
+  if(!G)return;
+  let wrong=0;
+  for(let i=0;i<81;i++){
+    if(G.val[i]&&G.val[i]!==G.sol[i]){
+      wrong++;cellEls[i].classList.remove("flash");
+      void cellEls[i].offsetWidth;cellEls[i].classList.add("flash");
+    }
+  }
+  toast(wrong===0?"All correct so far — keep going":wrong+(wrong===1?" cell is":" cells are")+" wrong");
+});
+$("#revealBtn").addEventListener("click",()=>{
+  if(!G||G.sel<0){toast("Select a cell first");return;}
+  if(G.given[G.sel]||G.val[G.sel]===G.sol[G.sel]){toast("That one's already right");return;}
+  const wasNote=noteMode;noteMode=false;place(G.sol[G.sel]);noteMode=wasNote;
+});
+$("#shareBtn").addEventListener("click",async()=>{
+  const url=location.origin+location.pathname+"#/p/"+G.diff+"/"+G.num;
+  try{await navigator.clipboard.writeText(url);toast("Link copied — same puzzle for everyone");}
+  catch(e){prompt("Copy this link:",url);}
+});
+$("#nextBtn").addEventListener("click",()=>{
+  $("#winModal").classList.remove("on");
+  const nextNum=G.isDaily?1+((Math.random()*MAX_NUM)|0):Math.min(G.num+1,MAX_NUM);
+  location.hash="#/p/"+G.diff+"/"+nextNum;
+});
+$("#browseBtn2").addEventListener("click",()=>{$("#winModal").classList.remove("on");location.hash="#/browse";});
+
+/* ---------- keyboard ---------- */
+document.addEventListener("keydown",e=>{
+  if(!$("#viewGame").classList.contains("on")||!G)return;
+  if(e.target.tagName==="INPUT")return;
+  const k=e.key;
+  if(k>="1"&&k<="9"){
+    if(e.shiftKey){const was=noteMode;noteMode=true;place(+k);noteMode=was;}
+    else place(+k);
+    e.preventDefault();
+  }
+  else if(k==="Backspace"||k==="Delete"){place(0);e.preventDefault();}
+  else if(k==="n"||k==="N"){noteMode=!noteMode;$("#noteBtn").classList.toggle("on",noteMode);}
+  else if(k==="u"||k==="U"){undoMove();}
+  else if(k===" "){setPaused(!G.paused);e.preventDefault();}
+  else if(k.startsWith("Arrow")){
+    let s=G.sel<0?0:G.sel;
+    const r=(s/9)|0,c=s%9;
+    if(k==="ArrowUp"&&r>0)s-=9;
+    if(k==="ArrowDown"&&r<8)s+=9;
+    if(k==="ArrowLeft"&&c>0)s-=1;
+    if(k==="ArrowRight"&&c<8)s+=1;
+    select(s);e.preventDefault();
+  }
+});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&G&&!G.done)setPaused(true);});
+
+/* ---------- browse view ---------- */
+const DIFF_META={
+  easy:{blurb:"Small cages, a few starter digits. A gentle way in.",col:"#4CAF7D"},
+  medium:{blurb:"Classic killer. Combos and the rule of 45 earn their keep.",col:"#5847E0"},
+  hard:{blurb:"Bigger cages, fewer certainties. Bring pencil marks.",col:"#E08A2E"},
+  expert:{blurb:"Sprawling cages and long deductions. Genuinely mean.",col:"#D6484F"}
+};
+function buildBrowse(){
+  const grid=$("#diffGrid");grid.innerHTML="";
+  for(const d of DIFFS){
+    const card=document.createElement("div");
+    card.className="dcard";card.style.setProperty("--dc",DIFF_META[d].col);
+    card.innerHTML=
+      "<h2>"+DIFF_LABEL[d]+"</h2>"+
+      "<div class='meta'>"+DIFF_META[d].blurb+"<br>100,000 puzzles · #1–#100,000</div>"+
+      "<div class='row'>"+
+      "<input type='number' min='1' max='"+MAX_NUM+"' placeholder='Puzzle #' aria-label='"+DIFF_LABEL[d]+" puzzle number'>"+
+      "<button class='go'>Play</button>"+
+      "<button class='rand' title='Random puzzle'>🎲</button>"+
+      "</div>";
+    const input=card.querySelector("input");
+    const go=()=>{
+      let n=parseInt(input.value,10);
+      if(!n||n<1||n>MAX_NUM){toast("Enter a number from 1 to 100,000");return;}
+      location.hash="#/p/"+d+"/"+n;
+    };
+    card.querySelector(".go").addEventListener("click",go);
+    input.addEventListener("keydown",e=>{if(e.key==="Enter")go();});
+    card.querySelector(".rand").addEventListener("click",()=>{
+      location.hash="#/p/"+d+"/"+(1+((Math.random()*MAX_NUM)|0));
+    });
+    grid.appendChild(card);
+  }
+}
+
+/* ---------- routing / theme / ads ---------- */
+function show(view){
+  ["Game","Browse","Help"].forEach(v=>$("#view"+v).classList.toggle("on",v.toLowerCase()===view));
+  const map={game:"",browse:"navBrowse",help:"navHelp"};
+  ["navDaily","navBrowse","navHelp"].forEach(id=>$("#"+id).classList.remove("on"));
+  if(view==="browse")$("#navBrowse").classList.add("on");
+  else if(view==="help")$("#navHelp").classList.add("on");
+  else if(G&&G.isDaily)$("#navDaily").classList.add("on");
+  window.scrollTo(0,0);
+}
+function route(){
+  const h=location.hash;let m;
+  if((m=h.match(/^#\/p\/(easy|medium|hard|expert)\/(\d+)/))){
+    show("game");openPuzzle(Math.max(1,+m[2]),m[1],false);
+  }else if(h.startsWith("#/browse")){
+    show("browse");
+  }else if(h.startsWith("#/help")){
+    show("help");
+  }else{
+    const d=dailyInfo();
+    show("game");openPuzzle(d.num,d.diff,true,d.dayN);
+    $("#navDaily").classList.add("on");
+  }
+}
+window.addEventListener("hashchange",route);
+
+$("#themeBtn").addEventListener("click",()=>{
+  const cur=document.documentElement.dataset.theme==="dark"?"light":"dark";
+  document.documentElement.dataset.theme=cur;store.set("zs_theme",cur);
+});
+
+(function initAds(){
+  if(!CONFIG.ADSENSE_CLIENT)return;
+  const s=document.createElement("script");
+  s.async=true;s.crossOrigin="anonymous";
+  s.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client="+CONFIG.ADSENSE_CLIENT;
+  document.head.appendChild(s);
+  const slots=[["#adTop",CONFIG.ADSENSE_SLOT_TOP],["#adBottom",CONFIG.ADSENSE_SLOT_BOTTOM]];
+  for(const [sel,slot] of slots){
+    if(!slot)continue;
+    const wrap=$(sel),ins=wrap.querySelector("ins");
+    ins.dataset.adClient=CONFIG.ADSENSE_CLIENT;
+    ins.dataset.adSlot=slot;
+    wrap.classList.add("live");
+    (window.adsbygoogle=window.adsbygoogle||[]).push({});
+  }
+})();
+
+buildPad();buildBrowse();route();
+</script>
+</body>
+</html>
