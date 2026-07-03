@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Killer Sudoku vs Regular Sudoku — What Actually Changes | Zaney Sudoku</title>
 <meta name="description" content="Same grid, different game. What carries over from regular sudoku, what's new in killer, which one is harder, and the three habit changes that make switching painless.">
-<meta name="theme-color" content="#F6F5EF">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#F6F5EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12141C" media="(prefers-color-scheme: dark)">
+<link rel="preload" href="fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <script defer src="/_vercel/insights/script.js"></script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -23,6 +23,8 @@
 -->
 <script>try{const t=localStorage.getItem("zs_theme");if(t)document.documentElement.dataset.theme=JSON.parse(t);else if(matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.dataset.theme="dark";}catch(e){}</script>
 <style>
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/bricolage.woff2") format("woff2");font-weight:200 800;font-style:normal;font-display:swap}
+@font-face{font-family:"Inter";src:url("fonts/inter.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
 :root{--paper:#F6F5EF;--surface:#FFFFFF;--ink:#20232E;--muted:#6B6F7F;--line:#DBD9CE;
 --violet:#5847E0;--hl:#FFD23F;--radius:14px;
 --shadow:0 1px 2px rgba(20,22,32,.06),0 8px 24px rgba(20,22,32,.06);}
@@ -34,6 +36,7 @@ body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;back
 color:var(--ink);line-height:1.6;min-height:100dvh;display:flex;flex-direction:column}
 a{color:var(--violet)}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button,a{-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:3px solid var(--violet);outline-offset:2px;border-radius:6px}
 header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:18px clamp(14px,4vw,32px) 10px;
 max-width:900px;margin:0 auto;width:100%}
@@ -59,6 +62,7 @@ article ul,article ol{padding-left:22px;display:grid;gap:7px;margin:8px 0}
 .tip b{color:var(--violet)}
 table{width:100%;border-collapse:collapse;margin:12px 0 20px;background:var(--surface);
 border-radius:10px;overflow:hidden;box-shadow:var(--shadow);font-size:14px}
+@media (max-width:420px){table{font-size:12.5px}th,td{padding:7px 8px}}
 th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:12.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
 tr:last-child td{border-bottom:none}
@@ -69,7 +73,7 @@ font-weight:700;padding:12px 22px;border-radius:99px;margin:26px 0 6px}
 .cta:hover{background:var(--violet)}
 .crumbs{font-size:13px;color:var(--muted);margin-top:8px}
 .crumbs a{color:var(--muted)}
-footer{padding:26px 20px 34px;text-align:center;font-size:12.5px;color:var(--muted)}
+footer{padding:26px 20px calc(34px + env(safe-area-inset-bottom));text-align:center;font-size:12.5px;color:var(--muted)}
 footer a{color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media print{
@@ -131,6 +135,8 @@ footer a{color:var(--muted)}
   <a href="killer-sudoku-rules.html">rules</a> &middot;
   <a href="killer-sudoku-combinations.html">combinations</a> &middot;
   <a href="killer-sudoku-strategy.html">strategy</a> &middot;
+  <a href="about.html">about</a> &middot;
+  <a href="terms.html">terms</a> &middot;
   <a href="privacy.html">privacy</a>
 </footer>
 <script>

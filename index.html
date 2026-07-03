@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Zaney Sudoku — 400,000 killer sudoku puzzles, every one solvable</title>
 <meta name="description" content="Killer sudoku, dealt fresh. 100,000 puzzles per difficulty, every one checked for a unique solution before you play. Daily puzzle, pencil marks, dark mode.">
-<meta name="theme-color" content="#F6F5EF">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#F6F5EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12141C" media="(prefers-color-scheme: dark)">
+<link rel="preload" href="fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <script defer src="/_vercel/insights/script.js"></script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -36,6 +36,8 @@ const CONFIG = {
 try{const t=localStorage.getItem("zs_theme");if(t)document.documentElement.dataset.theme=JSON.parse(t);else if(matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.dataset.theme="dark";}catch(e){}
 </script>
 <style>
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/bricolage.woff2") format("woff2");font-weight:200 800;font-style:normal;font-display:swap}
+@font-face{font-family:"Inter";src:url("fonts/inter.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
 :root{
   --paper:#F6F5EF;
   --surface:#FFFFFF;
@@ -72,8 +74,10 @@ body{
   background:var(--paper);color:var(--ink);
   min-height:100dvh;display:flex;flex-direction:column;
   line-height:1.45;
+  padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);
 }
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button,a,.cell{-webkit-tap-highlight-color:transparent}
 input{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--violet);outline-offset:2px;border-radius:6px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -162,19 +166,20 @@ main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw
 .cell.given .v{color:var(--ink);font-weight:800}
 .cell.err .v{color:var(--err)}
 .cell .notes{
-  position:absolute;inset:12% 4% 4% 4%;z-index:1;
+  position:absolute;inset:12% 4% 3% 4%;z-index:1;
   display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
   font-size:clamp(8px,2vw,11px);font-weight:600;color:var(--muted);
+  line-height:1;overflow:hidden;
 }
-.cell .notes span{display:flex;align-items:center;justify-content:center;visibility:hidden}
-.cell.anchor .notes{inset:37% 4% 2% 4%}
+.cell .notes span{display:flex;align-items:center;justify-content:center;visibility:hidden;min-height:0;min-width:0}
+.cell.anchor .notes{inset:27% 4% 3% 4%;font-size:clamp(7px,1.8vw,10px)}
 .cell .notes span.on{visibility:visible}
 .cell.flash{animation:flash .5s ease 3}
 @keyframes flash{50%{background:color-mix(in srgb,var(--err) 35%,transparent)}}
 #cageSvg{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);pointer-events:none;z-index:3}
 #cageSvg path{stroke:var(--cage);stroke-width:2.1;fill:none;stroke-dasharray:6 5;stroke-linecap:round}
 #cageSvg rect{fill:var(--surface)}
-#cageSvg text{fill:var(--cage);font-family:Inter;font-size:24px;font-weight:700}
+#cageSvg text{fill:var(--cage);font-family:Inter;font-size:19px;font-weight:700}
 
 .dealing{
   position:absolute;inset:0;z-index:9;border-radius:10px;
@@ -235,7 +240,7 @@ main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw
 .dcard .row{display:flex;gap:8px}
 .dcard input{
   width:0;flex:1;min-width:0;background:var(--paper);border:1.5px solid var(--line);
-  border-radius:9px;padding:8px 10px;font-size:14px;
+  border-radius:9px;padding:8px 10px;font-size:16px; /* 16px stops iOS zooming on focus */
 }
 .dcard .go,.dcard .rand{
   border-radius:9px;padding:8px 13px;font-weight:700;font-size:14px;white-space:nowrap;
@@ -277,7 +282,7 @@ main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw
 .modal .primary:hover{background:var(--violet)}
 .modal .ghost{border:1.5px solid var(--line)}
 #toast{
-  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+  position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
   background:var(--ink);color:var(--paper);font-size:14px;font-weight:600;
   padding:10px 18px;border-radius:99px;opacity:0;pointer-events:none;
   transition:.25s;z-index:60;max-width:90vw;text-align:center;
@@ -285,7 +290,7 @@ main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw
 #toast.on{opacity:1;transform:translateX(-50%)}
 
 footer{
-  padding:26px 20px 34px;text-align:center;font-size:12.5px;color:var(--muted);
+  padding:26px 20px calc(34px + env(safe-area-inset-bottom));text-align:center;font-size:12.5px;color:var(--muted);
 }
 footer a{color:var(--muted)}
 .pulse{animation:pulse 1.6s ease}
@@ -322,9 +327,37 @@ footer a{color:var(--muted)}
 .tipjar{margin-top:14px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;border:1.5px dashed var(--muted);border-radius:99px;padding:7px 14px;display:none}
 .tipjar.on{display:inline-block}
 #adWin{margin-top:16px}
+#printSheet{display:none}
+@media print{
+  body>*{display:none!important}
+  #printSheet{display:block!important;background:#fff;color:#000;padding:16px}
+  #printSheet h2{font-family:Inter,sans-serif;font-size:20px;margin-bottom:4px}
+  #printSheet p{font-size:12px;color:#444;margin-bottom:10px}
+  #printSheet svg{width:min(100%,680px);display:block;margin:0 auto}
+}
 @media (max-width:640px){
   .tagline{display:none}
   nav{margin-left:0;width:100%;justify-content:flex-start}
+}
+/* iPad landscape / desktop: pad beside the board */
+@media (min-width:980px){
+  .game-col{max-width:960px}
+  .playarea{display:flex;align-items:flex-start;justify-content:center;gap:28px}
+  .board-wrap{width:min(56vw,540px);margin:0;flex:none}
+  .pcol{width:340px;flex:none}
+  .pcol>*{width:100%;margin-left:0;margin-right:0}
+  .combostrip{text-align:left;min-height:38px;margin-top:0}
+  .pad{grid-template-columns:repeat(3,1fr);margin-top:0}
+  .key{padding:16px 0 12px;font-size:24px}
+  .actions{justify-content:flex-start}
+}
+/* landscape phones: shrink board to fit height, controls beside */
+@media (min-width:700px) and (max-width:979px) and (max-height:560px){
+  .playarea{display:flex;align-items:flex-start;justify-content:center;gap:20px}
+  .board-wrap{width:min(52vw,calc(100dvh - 150px));margin:0;flex:none}
+  .pcol{flex:1;max-width:360px;min-width:0}
+  .pcol>*{width:100%;margin-left:0;margin-right:0}
+  .pad{margin-top:0}
 }
 </style>
 </head>
@@ -357,12 +390,14 @@ footer a{color:var(--muted)}
           <button id="pauseBtn" title="Pause" aria-label="Pause">⏸</button>
         </div>
       </div>
+      <div class="playarea">
       <div class="board-wrap">
         <div id="board" tabindex="0" aria-label="Killer sudoku board"></div>
         <svg id="cageSvg" viewBox="0 0 900 900" preserveAspectRatio="none" aria-hidden="true"></svg>
         <div class="paused-cover" id="pausedCover">Paused — tap to resume</div>
         <div class="dealing" id="dealing"><div class="spin"></div><span id="dealTxt">Dealing puzzle…</span></div>
       </div>
+      <div class="pcol">
       <div class="combostrip" id="comboStrip"></div>
       <div class="pad" id="pad"></div>
       <div class="padrow2">
@@ -385,12 +420,17 @@ footer a{color:var(--muted)}
         <button id="revealBtn">Reveal cell</button>
         <button id="restartBtn">Restart</button>
         <button id="shareBtn">Share puzzle</button>
+        <button id="printBtn">Print blank</button>
       </div>
       <div class="actions">
         <button id="errToggle">Mistake highlights: on</button>
         <button id="tidyToggle">Auto-tidy notes: on</button>
         <button id="cageToggle">Cage helper: on</button>
+        <button id="zenToggle">Timer: shown</button>
+        <button id="hapToggle">Haptics: on</button>
       </div>
+      </div><!-- /pcol -->
+      </div><!-- /playarea -->
     </div>
   </section>
 
@@ -417,6 +457,12 @@ footer a{color:var(--muted)}
       <tbody id="stBody"></tbody></table>
       <p class="statnote">Stats live in this browser only — no accounts, no servers.</p>
       <a class="linkbtn" href="#/archive">Daily archive →</a>
+      <h2 class="vh1" style="font-size:21px;margin:30px 0 6px">Moving devices?</h2>
+      <p class="statnote">Copy a backup code here, then import it on your new phone or laptop to bring your streaks and stats with you.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="tool" style="padding:10px 18px" id="expBtn">Copy backup code</button>
+        <button class="tool" style="padding:10px 18px" id="impBtn">Import code</button>
+      </div>
     </div>
   </section>
 
@@ -465,6 +511,8 @@ footer a{color:var(--muted)}
   <a href="killer-sudoku-rules.html">rules</a> ·
   <a href="killer-sudoku-combinations.html">combinations</a> ·
   <a href="killer-sudoku-strategy.html">strategy</a> ·
+  <a href="about.html">about</a> ·
+  <a href="terms.html">terms</a> ·
   <a href="privacy.html">privacy</a> · made in London
 </footer>
 
@@ -482,6 +530,18 @@ footer a{color:var(--muted)}
     <a class="tipjar" id="tipJar" target="_blank" rel="noopener">☕ Enjoying it? Remove ads for a one-off tip</a>
   </div>
 </div>
+<div class="modal" id="tutModal">
+  <div class="card">
+    <span class="sumbadge" id="tutStep">1 of 3</span>
+    <h2 id="tutH">Cages add up</h2>
+    <p id="tutP"></p>
+    <div class="mbtns">
+      <button class="ghost" id="tutSkip">Skip</button>
+      <button class="primary" id="tutNext">Next</button>
+    </div>
+  </div>
+</div>
+<div id="printSheet"></div>
 <div id="toast" role="status"></div>
 <script>
 "use strict";
@@ -731,8 +791,11 @@ const store={
 let SET={
   errors:  store.get("zs_set_errors", true),
   autonotes:store.get("zs_set_autonotes", true),
-  cagehelp:store.get("zs_set_cagehelp", true)
+  cagehelp:store.get("zs_set_cagehelp", true),
+  zen:     store.get("zs_set_zen", false),
+  haptics: store.get("zs_set_haptics", true)
 };
+function buzz(ms){if(SET.haptics&&navigator.vibrate)try{navigator.vibrate(ms);}catch(e){}}
 let G=null;            // current game
 let cellEls=[];
 let clockInt=null;
@@ -764,11 +827,10 @@ function buildBoardDom(){
   }
 }
 
-function drawCages(){
-  const svg=$("#cageSvg");
+function cageGeometry(cages,cageOf){
   const S=100,inset=7;
   let path="";
-  const diffAt=(i,j)=>j<0||G.cageOf[i]!==G.cageOf[j];
+  const diffAt=(i,j)=>j<0||cageOf[i]!==cageOf[j];
   for(let i=0;i<81;i++){
     const r=(i/9)|0,c=i%9,x=c*S,y=r*S;
     const up=diffAt(i,r>0?i-9:-1),dn=diffAt(i,r<8?i+9:-1),
@@ -779,14 +841,19 @@ function drawCages(){
     if(rt)path+=`M${x+S-inset} ${y+(up?inset:0)}V${y+S-(dn?inset:0)}`;
   }
   let labels="";
-  for(const g of G.cages){
+  for(const g of cages){
     const a=g.cells[0],r=(a/9)|0,c=a%9;
-    const tx=c*100+11,ty=r*100+30;
-    const w=String(g.sum).length*14+8;
-    labels+=`<rect x="${c*100+6}" y="${r*100+8}" width="${w}" height="27" rx="5"></rect>`;
+    const tx=c*100+10,ty=r*100+26;
+    const w=String(g.sum).length*11+7;
+    labels+=`<rect x="${c*100+5}" y="${r*100+6}" width="${w}" height="22" rx="4"></rect>`;
     labels+=`<text x="${tx}" y="${ty}">${g.sum}</text>`;
   }
-  svg.innerHTML=`<path d="${path}"></path>${labels}`;
+  return {path,labels};
+}
+function drawCages(){
+  const svg=$("#cageSvg");
+  const geo=cageGeometry(G.cages,G.cageOf);
+  svg.innerHTML=`<path d="${geo.path}"></path>${geo.labels}`;
   cellEls.forEach(el=>el.classList.remove("anchor"));
   for(const g of G.cages)cellEls[g.cells[0]].classList.add("anchor");
 }
@@ -914,6 +981,7 @@ function place(d){
     G.val[G.sel]=0;G.notes[G.sel]=0;
   }else{
     G.val[G.sel]=d;G.notes[G.sel]=0;
+    buzz(8);
     if(SET.autonotes){
       const r=(G.sel/9)|0,c=G.sel%9,b=((r/3)|0)*3+((c/3)|0);
       for(let i=0;i<81;i++){
@@ -1034,6 +1102,7 @@ function win(){
   }
   track("puzzle_complete",{difficulty:G.diff,seconds:G.elapsed,daily:!!G.isDaily,assists:G.assists});
   $("#winTxt").textContent=puzzleTitle()+" solved in "+fmtTime(G.elapsed)+". Every row, box and cage checks out.";
+  buzz(30);
   $("#winModal").classList.add("on");
 }
 /* ---------- pad / buttons ---------- */
@@ -1058,7 +1127,20 @@ function syncToggles(){
   $("#tidyToggle").classList.toggle("on",SET.autonotes);
   $("#cageToggle").textContent="Cage helper: "+(SET.cagehelp?"on":"off");
   $("#cageToggle").classList.toggle("on",SET.cagehelp);
+  $("#zenToggle").textContent="Timer: "+(SET.zen?"hidden":"shown");
+  $("#zenToggle").classList.toggle("on",!SET.zen);
+  $("#hapToggle").textContent="Haptics: "+(SET.haptics?"on":"off");
+  $("#hapToggle").classList.toggle("on",SET.haptics);
+  $("#clockTxt").style.visibility=SET.zen?"hidden":"visible";
 }
+$("#zenToggle").addEventListener("click",()=>{
+  SET.zen=!SET.zen;store.set("zs_set_zen",SET.zen);syncToggles();
+  toast(SET.zen?"Zen mode — no clock, no pressure":"Timer's back");
+});
+$("#hapToggle").addEventListener("click",()=>{
+  SET.haptics=!SET.haptics;store.set("zs_set_haptics",SET.haptics);syncToggles();buzz(15);
+});
+if(!("vibrate" in navigator))$("#hapToggle").style.display="none";
 $("#cageToggle").addEventListener("click",()=>{
   SET.cagehelp=!SET.cagehelp;store.set("zs_set_cagehelp",SET.cagehelp);syncToggles();if(G)refresh();
   toast(SET.cagehelp?"Cage combinations shown for the selected cage":"Cage helper off — combinations page is still there");
@@ -1231,6 +1313,76 @@ function buildBrowse(){
   }
 }
 
+/* ---------- print blank puzzle ---------- */
+$("#printBtn").addEventListener("click",()=>{
+  if(!G)return;
+  const geo=cageGeometry(G.cages,G.cageOf);
+  let grid="";
+  for(let i=0;i<=9;i++){
+    const w=(i%3===0)?3:1;
+    grid+=`<line x1="${i*100}" y1="0" x2="${i*100}" y2="900" stroke="#000" stroke-width="${w}"/>`;
+    grid+=`<line x1="0" y1="${i*100}" x2="900" y2="${i*100}" stroke="#000" stroke-width="${w}"/>`;
+  }
+  let givens="";
+  for(let i=0;i<81;i++)if(G.given[i]){
+    const r=(i/9)|0,c=i%9;
+    givens+=`<text x="${c*100+50}" y="${r*100+66}" text-anchor="middle" font-size="46" font-weight="bold" fill="#000" font-family="Inter,sans-serif">${G.sol[i]}</text>`;
+  }
+  $("#printSheet").innerHTML=
+    "<h2>Zaney Sudoku — "+puzzleTitle()+" ("+DIFF_LABEL[G.diff]+")</h2>"+
+    "<p>Rows, columns and boxes contain 1–9. Cage digits add to the corner number, no repeats in a cage. Play online: zaneysudoku.com</p>"+
+    `<svg viewBox="-4 -4 908 908" xmlns="http://www.w3.org/2000/svg">${grid}`+
+    `<g fill="none" stroke="#555" stroke-width="2" stroke-dasharray="6 5"><path d="${geo.path}"/></g>`+
+    `<g font-family="Inter,sans-serif" font-size="20" font-weight="bold">${geo.labels.replace(/<rect /g,'<rect fill="#fff" ').replace(/<text /g,'<text fill="#333" ')}</g>`+
+    givens+`</svg>`;
+  window.print();
+});
+
+/* ---------- first-visit tutorial ---------- */
+const TUT=[
+  ["Cages add up","Every dashed cage's digits sum to the little number in its corner — and a digit can't repeat inside a cage. Rows, columns and 3×3 boxes still take 1–9 exactly once, like normal sudoku."],
+  ["Tap, then type","Tap a cell, then use the number pad (or your keyboard). Toggle ✏️ Notes for pencil marks — they tidy themselves automatically when you place digits."],
+  ["Stuck? You're covered","💡 Hint finds a cell with only one possibility. The strip above the pad shows your selected cage's remaining combinations. And every puzzle here is verified solvable — no dead ends, ever."]
+];
+let tutN=0;
+function tutShow(){
+  $("#tutStep").textContent=(tutN+1)+" of "+TUT.length;
+  $("#tutH").textContent=TUT[tutN][0];
+  $("#tutP").textContent=TUT[tutN][1];
+  $("#tutNext").textContent=tutN===TUT.length-1?"Let's play":"Next";
+  $("#tutModal").classList.add("on");
+}
+function tutEnd(){$("#tutModal").classList.remove("on");store.set("zs_seen_tut",true);}
+$("#tutNext").addEventListener("click",()=>{tutN++;if(tutN>=TUT.length)tutEnd();else tutShow();});
+$("#tutSkip").addEventListener("click",tutEnd);
+function maybeTutorial(){if(!store.get("zs_seen_tut",false)){tutN=0;tutShow();}}
+
+/* ---------- backup / restore ---------- */
+const BK_KEYS=["zs_stats","zs_daily","zs_done_easy","zs_done_medium","zs_done_hard","zs_done_expert",
+  "zs_set_errors","zs_set_autonotes","zs_set_cagehelp","zs_set_zen","zs_set_haptics","zs_theme","zs_seen_tut"];
+$("#expBtn").addEventListener("click",async()=>{
+  const data={};
+  try{for(const k of BK_KEYS){const v=localStorage.getItem(k);if(v!=null)data[k]=v;}}catch(e){}
+  const code="ZS1."+btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  try{await navigator.clipboard.writeText(code);toast("Backup code copied — paste it on your other device");}
+  catch(e){prompt("Copy your backup code:",code);}
+});
+$("#impBtn").addEventListener("click",()=>{
+  const code=prompt("Paste your backup code:");
+  if(!code)return;
+  try{
+    const data=JSON.parse(decodeURIComponent(escape(atob(code.trim().replace(/^ZS1\./,"")))));
+    let n=0;
+    for(const k of BK_KEYS)if(typeof data[k]==="string"){try{localStorage.setItem(k,data[k]);n++;}catch(e){}}
+    if(!n)throw 0;
+    SET.errors=store.get("zs_set_errors",true);SET.autonotes=store.get("zs_set_autonotes",true);
+    SET.cagehelp=store.get("zs_set_cagehelp",true);SET.zen=store.get("zs_set_zen",false);
+    SET.haptics=store.get("zs_set_haptics",true);
+    syncToggles();renderStats();
+    toast("Backup restored — welcome back");
+  }catch(e){toast("That code didn't look right — check you copied all of it");}
+});
+
 /* ---------- stats + archive ---------- */
 function renderStats(){
   const st=store.get("zs_stats",{});
@@ -1335,6 +1487,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:")
   navigator.serviceWorker.register("./sw.js").catch(()=>{});
 
 buildPad();buildBrowse();route();
+if($("#viewGame").classList.contains("on"))maybeTutorial();
 </script>
 </body>
 </html>

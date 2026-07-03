@@ -1,8 +1,10 @@
-const CACHE = "zaney-v1";
+const CACHE = "zaney-v2";
 const SHELL = [
   "./", "./index.html",
   "./killer-sudoku-rules.html", "./killer-sudoku-combinations.html",
   "./killer-sudoku-strategy.html", "./privacy.html",
+  "./about.html", "./contact.html", "./terms.html",
+  "./fonts/inter.woff2", "./fonts/bricolage.woff2",
   "./manifest.json", "./favicon.svg", "./icon-192.png", "./icon-512.png"
 ];
 self.addEventListener("install", e => {
