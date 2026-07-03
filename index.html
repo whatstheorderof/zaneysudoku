@@ -9,6 +9,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script defer src="/_vercel/insights/script.js"></script>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta property="og:title" content="Zaney Sudoku — killer sudoku with zero dead ends">
+<meta property="og:description" content="400,000 killer sudoku puzzles, every one verified to have exactly one solution. Daily puzzle, pencil marks, dark mode.">
+<meta property="og:image" content="https://zaneysudoku.com/og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <script>
 /* ===================== CONFIG ===================== */
 /* Google AdSense: after your site is approved, paste your IDs below.
@@ -18,7 +27,10 @@
 const CONFIG = {
   ADSENSE_CLIENT: "",
   ADSENSE_SLOT_TOP: "",
-  ADSENSE_SLOT_BOTTOM: ""
+  ADSENSE_SLOT_BOTTOM: "",
+  ADSENSE_SLOT_WIN: "",          /* optional: shown on the solved screen */
+  STRIPE_LINK: ""                /* optional: Stripe Payment Link for the "remove ads" tip jar.
+                                    Set the link's success redirect to https://YOURDOMAIN/?thanks=1 */
 };
 /* Apply saved theme before paint to avoid flash */
 try{const t=localStorage.getItem("zs_theme");if(t)document.documentElement.dataset.theme=JSON.parse(t);else if(matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.dataset.theme="dark";}catch(e){}
@@ -155,6 +167,7 @@ main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw
   font-size:clamp(8px,2vw,11px);font-weight:600;color:var(--muted);
 }
 .cell .notes span{display:flex;align-items:center;justify-content:center;visibility:hidden}
+.cell.anchor .notes{inset:37% 4% 2% 4%}
 .cell .notes span.on{visibility:visible}
 .cell.flash{animation:flash .5s ease 3}
 @keyframes flash{50%{background:color-mix(in srgb,var(--err) 35%,transparent)}}
@@ -192,7 +205,7 @@ main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw
 .key small{font-size:10px;font-weight:600;color:var(--muted)}
 .key:active{transform:translateY(1px)}
 .key.out{opacity:.32}
-.padrow2{width:min(94vw,540px);margin:8px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.padrow2{width:min(94vw,540px);margin:8px auto 0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .tool{
   background:var(--surface);border-radius:10px;box-shadow:var(--shadow);
   padding:10px 0;font-weight:600;font-size:14px;
@@ -205,6 +218,7 @@ main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw
   border:1.5px solid var(--line);color:var(--muted);
 }
 .actions button:hover{color:var(--ink);border-color:var(--muted)}
+.actions button.on{border-color:var(--violet);color:var(--violet)}
 
 /* ---------- browse ---------- */
 .browse-head{max-width:640px;margin:22px auto 6px;text-align:center}
@@ -274,6 +288,40 @@ footer{
   padding:26px 20px 34px;text-align:center;font-size:12.5px;color:var(--muted);
 }
 footer a{color:var(--muted)}
+.pulse{animation:pulse 1.6s ease}
+@keyframes pulse{0%,100%{box-shadow:none}50%{box-shadow:inset 0 0 0 3px var(--violet)}}
+.combostrip{min-height:20px;margin:10px auto 0;width:min(94vw,540px);text-align:center;font-size:13px;color:var(--muted);line-height:1.5}
+.combostrip b{color:var(--ink)}
+.palette{display:none;width:min(94vw,540px);margin:8px auto 0;grid-template-columns:repeat(5,1fr);gap:6px}
+.palette.on{display:grid}
+.sw{height:36px;border-radius:9px;box-shadow:var(--shadow);border:2.5px solid transparent;font-size:12px;font-weight:600;color:var(--muted)}
+.sw.on{border-color:var(--violet)}
+.sw[data-c="1"]{background:rgba(228,87,46,.33)}.sw[data-c="2"]{background:rgba(23,190,187,.33)}
+.sw[data-c="3"]{background:rgba(59,130,246,.33)}.sw[data-c="4"]{background:rgba(236,75,155,.33)}
+.cell[data-paint]::before{content:"";position:absolute;inset:0;pointer-events:none}
+.cell[data-paint="1"]::before{background:#E4572E;opacity:.24}
+.cell[data-paint="2"]::before{background:#17BEBB;opacity:.24}
+.cell[data-paint="3"]::before{background:#3B82F6;opacity:.22}
+.cell[data-paint="4"]::before{background:#EC4B9B;opacity:.22}
+.stats-col{max-width:560px;margin:18px auto}
+.vh1{font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(26px,5vw,34px);margin-bottom:16px}
+.streaks{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.stat{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 10px;text-align:center}
+.stat span{font-family:"Bricolage Grotesque";font-weight:800;font-size:34px;color:var(--violet);display:block}
+.stat label{font-size:12px;color:var(--muted)}
+.stt{width:100%;border-collapse:collapse;background:var(--surface);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);font-size:14px}
+.stt th,.stt td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line)}
+.stt th{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+.stt tr:last-child td{border-bottom:none}
+.statnote{font-size:12.5px;color:var(--muted);margin:12px 0}
+.linkbtn{display:inline-block;font-weight:700;color:var(--violet);text-decoration:none;margin-top:6px}
+.arch{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:11px;box-shadow:var(--shadow);padding:10px 14px;margin-bottom:8px;text-decoration:none;color:var(--ink);font-size:14px}
+.arch:hover{outline:2px solid var(--violet)}
+.arch .when{margin-left:auto;font-weight:700;font-size:13px;color:var(--muted)}
+.arch .ok{color:#3BA55D;font-weight:700}
+.tipjar{margin-top:14px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;border:1.5px dashed var(--muted);border-radius:99px;padding:7px 14px;display:none}
+.tipjar.on{display:inline-block}
+#adWin{margin-top:16px}
 @media (max-width:640px){
   .tagline{display:none}
   nav{margin-left:0;width:100%;justify-content:flex-start}
@@ -287,6 +335,7 @@ footer a{color:var(--muted)}
   <nav>
     <a href="#/daily" id="navDaily">Daily</a>
     <a href="#/browse" id="navBrowse">Browse puzzles</a>
+    <a href="#/stats" id="navStats">Stats</a>
     <a href="#/help" id="navHelp">How to play</a>
     <button id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">◐</button>
   </nav>
@@ -314,17 +363,33 @@ footer a{color:var(--muted)}
         <div class="paused-cover" id="pausedCover">Paused — tap to resume</div>
         <div class="dealing" id="dealing"><div class="spin"></div><span id="dealTxt">Dealing puzzle…</span></div>
       </div>
+      <div class="combostrip" id="comboStrip"></div>
       <div class="pad" id="pad"></div>
       <div class="padrow2">
         <button class="tool" id="noteBtn">✏️ Notes <span style="font-size:11px;color:var(--muted)">(N)</span></button>
         <button class="tool" id="eraseBtn">⌫ Erase</button>
         <button class="tool" id="undoBtn">↩ Undo</button>
+        <button class="tool" id="paintBtn">🖌 Paint</button>
+      </div>
+      <div class="palette" id="palette">
+        <button class="sw" data-c="1" aria-label="Paint red"></button>
+        <button class="sw" data-c="2" aria-label="Paint teal"></button>
+        <button class="sw" data-c="3" aria-label="Paint blue"></button>
+        <button class="sw" data-c="4" aria-label="Paint pink"></button>
+        <button class="sw" data-c="0" aria-label="Clear paint">clear</button>
       </div>
       <div class="actions">
+        <button id="hintBtn">💡 Hint</button>
+        <button id="autoNotesBtn">Auto notes</button>
         <button id="checkBtn">Check cells</button>
         <button id="revealBtn">Reveal cell</button>
         <button id="restartBtn">Restart</button>
         <button id="shareBtn">Share puzzle</button>
+      </div>
+      <div class="actions">
+        <button id="errToggle">Mistake highlights: on</button>
+        <button id="tidyToggle">Auto-tidy notes: on</button>
+        <button id="cageToggle">Cage helper: on</button>
       </div>
     </div>
   </section>
@@ -337,6 +402,31 @@ footer a{color:var(--muted)}
     </div>
     <div class="diff-grid" id="diffGrid"></div>
     <p class="browse-note">Puzzle numbers are permanent: #4,821 on Hard is the same puzzle for everyone, forever. Send a friend the link and race them.</p>
+  </section>
+
+  <!-- ================= STATS ================= -->
+  <section class="view" id="viewStats">
+    <div class="stats-col">
+      <h1 class="vh1">Your stats</h1>
+      <div class="streaks">
+        <div class="stat"><span id="stCur">0</span><label>day streak</label></div>
+        <div class="stat"><span id="stBest">0</span><label>best streak</label></div>
+        <div class="stat"><span id="stTotal">0</span><label>puzzles solved</label></div>
+      </div>
+      <table class="stt"><thead><tr><th>Difficulty</th><th>Solved</th><th>Best</th><th>Average</th></tr></thead>
+      <tbody id="stBody"></tbody></table>
+      <p class="statnote">Stats live in this browser only — no accounts, no servers.</p>
+      <a class="linkbtn" href="#/archive">Daily archive →</a>
+    </div>
+  </section>
+
+  <!-- ================= ARCHIVE ================= -->
+  <section class="view" id="viewArchive">
+    <div class="stats-col">
+      <h1 class="vh1">Daily archive</h1>
+      <p class="statnote">Missed a day? It's still here. Streaks only count same-day solves, mind.</p>
+      <div id="archList"></div>
+    </div>
   </section>
 
   <!-- ================= HELP ================= -->
@@ -385,8 +475,11 @@ footer a{color:var(--muted)}
     <p id="winTxt"></p>
     <div class="mbtns">
       <button class="primary" id="nextBtn">Next puzzle</button>
+      <button class="ghost" id="shareResBtn">Share result</button>
       <button class="ghost" id="browseBtn2">Browse</button>
     </div>
+    <div class="ad-slot" id="adWin"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
+    <a class="tipjar" id="tipJar" target="_blank" rel="noopener">☕ Enjoying it? Remove ads for a one-off tip</a>
   </div>
 </div>
 <div id="toast" role="status"></div>
@@ -615,26 +708,36 @@ function dealPuzzle(num,diff){
 
 /* Daily: number + difficulty derive from the UTC date */
 const DAILY_EPOCH=Date.UTC(2026,0,1);
+function dailyDiffFor(dayN){
+  const wd=new Date(DAILY_EPOCH+(dayN-1)*86400000).getUTCDay(); // 0 Sun … 6 Sat
+  return (wd===1||wd===2)?"easy":(wd===3||wd===4)?"medium":(wd===5||wd===6)?"hard":"expert";
+}
 function dailyInfo(){
   const dayN=Math.floor((Date.now()-DAILY_EPOCH)/86400000)+1;
-  const wd=new Date().getUTCDay(); // 0 Sun … 6 Sat
-  const diff=(wd===1||wd===2)?"easy":(wd===3||wd===4)?"medium":(wd===5||wd===6)?"hard":"expert";
-  return {dayN,num:900000+dayN,diff};
+  return {dayN,num:900000+dayN,diff:dailyDiffFor(dayN)};
 }
 /* =====================================================================
    UI
    ===================================================================== */
 const $=s=>document.querySelector(s);
+window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};
+function track(name,data){try{va("event",{name,data});}catch(e){}}
 const store={
   get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},
   del(k){try{localStorage.removeItem(k);}catch(e){}}
 };
 
+let SET={
+  errors:  store.get("zs_set_errors", true),
+  autonotes:store.get("zs_set_autonotes", true),
+  cagehelp:store.get("zs_set_cagehelp", true)
+};
 let G=null;            // current game
 let cellEls=[];
 let clockInt=null;
 let noteMode=false;
+let paintMode=false,paintColor=1;
 
 /* ---------- board DOM ---------- */
 function buildBoardDom(){
@@ -652,7 +755,11 @@ function buildBoardDom(){
     for(let d=1;d<=9;d++){const s=document.createElement("span");s.textContent=d;notes.appendChild(s);}
     const v=document.createElement("div");v.className="v";
     el.appendChild(notes);el.appendChild(v);
-    el.addEventListener("pointerdown",e=>{e.preventDefault();select(i);});
+    el.addEventListener("pointerdown",e=>{
+      e.preventDefault();
+      if(paintMode&&G&&!G.done){G.paint[i]=paintColor;save();refresh();return;}
+      select(i);
+    });
     board.appendChild(el);cellEls.push(el);
   }
 }
@@ -680,6 +787,46 @@ function drawCages(){
     labels+=`<text x="${tx}" y="${ty}">${g.sum}</text>`;
   }
   svg.innerHTML=`<path d="${path}"></path>${labels}`;
+  cellEls.forEach(el=>el.classList.remove("anchor"));
+  for(const g of G.cages)cellEls[g.cells[0]].classList.add("anchor");
+}
+
+/* ---------- candidates on the live board ---------- */
+function candidatesFor(i){
+  if(G.val[i])return 0;
+  const r=(i/9)|0,c=i%9,b=((r/3)|0)*3+((c/3)|0),g=G.cageOf[i];
+  let unit=0;
+  for(let j=0;j<81;j++){
+    const v=G.val[j];if(!v||j===i)continue;
+    const rj=(j/9)|0,cj=j%9,bj=((rj/3)|0)*3+((cj/3)|0);
+    if(rj===r||cj===c||bj===b)unit|=1<<v;
+  }
+  const cage=G.cages[g];
+  let cageM=0,sum=0,left=0;
+  for(const j of cage.cells){if(G.val[j]&&j!==i){cageM|=1<<G.val[j];sum+=G.val[j];}else if(!G.val[j])left++;}
+  let m=0;
+  for(let d=1;d<=9;d++){
+    const bit=1<<d;
+    if((unit|cageM)&bit)continue;
+    const rr=cage.sum-sum-d,k=left-1;
+    if(rr<0)continue;
+    let mn=0,n=0;for(let x=1;x<=9&&n<k;x++)if(!((cageM|bit)&(1<<x))){mn+=x;n++;}
+    if(n<k||mn>rr)continue;
+    let mx=0;n=0;for(let x=9;x>=1&&n<k;x--)if(!((cageM|bit)&(1<<x))){mx+=x;n++;}
+    if(mx<rr)continue;
+    m|=bit;
+  }
+  return m;
+}
+function popcnt(m){let c=0;for(let d=1;d<=9;d++)if(m&(1<<d))c++;return c;}
+function combosFor(sum,k,excl){
+  const out=[];
+  (function rec(start,left,s,acc){
+    if(out.length>60)return;
+    if(left===0){if(s===sum)out.push(acc.join("+"));return;}
+    for(let d=start;d<=9;d++){if(excl&(1<<d))continue;rec(d+1,left-1,s+d,acc.concat(d));}
+  })(1,k,0,[]);
+  return out;
 }
 
 /* ---------- errors / win ---------- */
@@ -710,7 +857,7 @@ function isWon(){
 
 /* ---------- render ---------- */
 function refresh(){
-  const err=computeErrors();
+  const err=SET.errors?computeErrors():new Set();
   const selVal=G.sel>=0?G.val[G.sel]:0;
   const selR=(G.sel/9)|0,selC=G.sel%9,selB=((selR/3)|0)*3+((selC/3)|0);
   for(let i=0;i<81;i++){
@@ -725,7 +872,9 @@ function refresh(){
     el.classList.toggle("same",!!(selVal&&v===selVal&&i!==G.sel));
     el.classList.toggle("err",err.has(i));
     el.classList.toggle("errbg",err.has(i));
+    if(G.paint[i])el.dataset.paint=G.paint[i];else el.removeAttribute("data-paint");
   }
+  updateComboStrip();
   const counts=new Array(10).fill(0);
   for(let i=0;i<81;i++)counts[G.val[i]]++;
   document.querySelectorAll(".key").forEach((k,idx)=>{
@@ -735,9 +884,25 @@ function refresh(){
   });
 }
 
+function updateComboStrip(){
+  const el=$("#comboStrip");
+  if(!SET.cagehelp||G.sel<0||G.done){el.textContent="";return;}
+  const g=G.cages[G.cageOf[G.sel]];
+  let sum=0,left=0,used=0;
+  for(const j of g.cells){if(G.val[j]){sum+=G.val[j];used|=1<<G.val[j];}else left++;}
+  if(left===0){el.innerHTML=sum===g.sum?"Cage <b>"+g.sum+"</b> complete ✓":"Cage <b>"+g.sum+"</b> — sum is off";return;}
+  const rem=g.sum-sum;
+  const combos=combosFor(rem,left,used);
+  const showN=6;
+  const shown=combos.slice(0,showN).map(c=>"<b>"+c+"</b>").join(" · ");
+  const more=combos.length>showN?" · +"+(combos.length-showN)+" more":"";
+  el.innerHTML="Cage "+g.sum+" · "+left+" cell"+(left>1?"s":"")+" left, "+rem+" to make: "+(combos.length?shown+more:"<b>impossible — check the cage</b>");
+}
+
 /* ---------- moves ---------- */
 function progKey(){return "zs_prog_"+G.diff+"_"+G.num;}
-function save(){store.set(progKey(),{v:Array.from(G.val),n:Array.from(G.notes),t:G.elapsed,done:G.done});}
+function save(){store.set(progKey(),{v:Array.from(G.val),n:Array.from(G.notes),p:Array.from(G.paint),a:G.assists,t:G.elapsed,done:G.done,
+  u:G.undo.slice(-30).map(s=>({v:Array.from(s.v),n:Array.from(s.n)}))});}
 function snapshot(){G.undo.push({v:G.val.slice(),n:G.notes.slice()});if(G.undo.length>300)G.undo.shift();}
 function select(i){if(G.done)return;G.sel=i;$("#board").focus({preventScroll:true});refresh();}
 function place(d){
@@ -749,10 +914,12 @@ function place(d){
     G.val[G.sel]=0;G.notes[G.sel]=0;
   }else{
     G.val[G.sel]=d;G.notes[G.sel]=0;
-    const r=(G.sel/9)|0,c=G.sel%9,b=((r/3)|0)*3+((c/3)|0);
-    for(let i=0;i<81;i++){
-      const ri=(i/9)|0,ci=i%9,bi=((ri/3)|0)*3+((ci/3)|0);
-      if(ri===r||ci===c||bi===b||G.cageOf[i]===G.cageOf[G.sel])G.notes[i]&=~(1<<d);
+    if(SET.autonotes){
+      const r=(G.sel/9)|0,c=G.sel%9,b=((r/3)|0)*3+((c/3)|0);
+      for(let i=0;i<81;i++){
+        const ri=(i/9)|0,ci=i%9,bi=((ri/3)|0)*3+((ci/3)|0);
+        if(ri===r||ci===c||bi===b||G.cageOf[i]===G.cageOf[G.sel])G.notes[i]&=~(1<<d);
+      }
     }
   }
   refresh();save();
@@ -781,6 +948,40 @@ function setPaused(p){
   $("#pauseBtn").textContent=p?"▶":"⏸";
 }
 
+/* ---------- dealing (web worker with sync fallback) ---------- */
+let dealWorker=null,dealToken=0;
+function makeWorker(){
+  try{
+    const parts=[
+      "const DIFFS="+JSON.stringify(DIFFS),
+      "const DIFF_CFG="+JSON.stringify(DIFF_CFG),
+      mulberry32,seedFor,shuffle,neighbors,connectedSet,
+      genSolution,buildCages,countSolutions,peelCell,splitOne,dealPuzzle
+    ].map(x=>typeof x==="string"?x+";":x.toString()+";").join("\n");
+    const blob=new Blob([parts+
+      ';onmessage=e=>{const p=dealPuzzle(e.data.num,e.data.diff);'+
+      'postMessage({num:e.data.num,diff:e.data.diff,sol:Array.from(p.sol),cages:p.cages,cageOf:Array.from(p.cageOf),given:Array.from(p.given)});};'
+    ],{type:"text/javascript"});
+    return new Worker(URL.createObjectURL(blob));
+  }catch(e){return null;}
+}
+function requestDeal(num,diff,cb){
+  const tok=++dealToken;
+  const finish=P=>{if(tok===dealToken)cb(P);};
+  if(dealWorker===null)dealWorker=makeWorker()||false;
+  if(dealWorker){
+    dealWorker.onmessage=e=>{
+      const d=e.data;
+      finish({num:d.num,diff:d.diff,sol:Uint8Array.from(d.sol),cages:d.cages,
+              cageOf:Int16Array.from(d.cageOf),given:Uint8Array.from(d.given)});
+    };
+    dealWorker.onerror=()=>{dealWorker=false;setTimeout(()=>finish(dealPuzzle(num,diff)),20);};
+    dealWorker.postMessage({num,diff});
+  }else{
+    setTimeout(()=>finish(dealPuzzle(num,diff)),30);
+  }
+}
+
 /* ---------- open / win ---------- */
 function puzzleTitle(){
   if(G.isDaily)return "Daily #"+G.dayN;
@@ -793,29 +994,45 @@ function openPuzzle(num,diff,daily,dayN){
   $("#dealing").classList.add("on");
   $("#dealTxt").textContent="Dealing "+(daily?"the daily":DIFF_LABEL[diff].toLowerCase()+" #"+num.toLocaleString("en-GB"))+"…";
   $("#pTitle").textContent="";$("#pSub").textContent="";
-  setTimeout(()=>{
-    const P=dealPuzzle(num,diff);
+  requestDeal(num,diff,P=>{
     G={...P,isDaily:!!daily,dayN,
-       val:new Uint8Array(81),notes:new Uint16Array(81),
-       sel:-1,undo:[],elapsed:0,paused:false,done:false};
+       val:new Uint8Array(81),notes:new Uint16Array(81),paint:new Uint8Array(81),
+       sel:-1,undo:[],assists:0,hintCell:-1,elapsed:0,paused:false,done:false};
     for(let i=0;i<81;i++)if(G.given[i])G.val[i]=G.sol[i];
     const saved=store.get(progKey(),null);
     if(saved&&saved.v&&!saved.done){
       for(let i=0;i<81;i++)if(!G.given[i]){G.val[i]=saved.v[i]||0;G.notes[i]=saved.n[i]||0;}
+      if(saved.p)for(let i=0;i<81;i++)G.paint[i]=saved.p[i]||0;
+      if(saved.u)G.undo=saved.u.map(s=>({v:Uint8Array.from(s.v),n:Uint16Array.from(s.n)}));
+      G.assists=saved.a||0;
       G.elapsed=saved.t||0;
     }
     drawCages();
     $("#pTitle").textContent=puzzleTitle();
     $("#pSub").textContent=G.isDaily
-      ? DIFF_LABEL[G.diff]+" · "+new Date().toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})
+      ? DIFF_LABEL[G.diff]+" · "+new Date(DAILY_EPOCH+(G.dayN-1)*86400000).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"})
       : G.cages.length+" cages · unique solution verified";
     $("#clockTxt").textContent=fmtTime(G.elapsed);
     $("#dealing").classList.remove("on");
     setPaused(false);refresh();startClock();
-  },30);
+    track("puzzle_start",{difficulty:diff,daily:!!daily});
+  });
 }
 function win(){
   G.done=true;save();stopClock();
+  const st=store.get("zs_stats",{});
+  const s=st[G.diff]=st[G.diff]||{n:0,best:0,tot:0};
+  s.n++;s.tot+=G.elapsed;
+  if(!s.best||G.elapsed<s.best)s.best=G.elapsed;
+  store.set("zs_stats",st);
+  const done=store.get("zs_done_"+G.diff,[]);
+  if(done.indexOf(G.num)===-1){done.push(G.num);store.set("zs_done_"+G.diff,done);}
+  if(G.isDaily){
+    const log=store.get("zs_daily",{});
+    log[G.dayN]={t:G.elapsed,d:G.diff};
+    store.set("zs_daily",log);
+  }
+  track("puzzle_complete",{difficulty:G.diff,seconds:G.elapsed,daily:!!G.isDaily,assists:G.assists});
   $("#winTxt").textContent=puzzleTitle()+" solved in "+fmtTime(G.elapsed)+". Every row, box and cage checks out.";
   $("#winModal").classList.add("on");
 }
@@ -834,7 +1051,85 @@ function toast(msg){
   clearTimeout(t._to);t._to=setTimeout(()=>t.classList.remove("on"),2200);
 }
 
+function syncToggles(){
+  $("#errToggle").textContent="Mistake highlights: "+(SET.errors?"on":"off");
+  $("#errToggle").classList.toggle("on",SET.errors);
+  $("#tidyToggle").textContent="Auto-tidy notes: "+(SET.autonotes?"on":"off");
+  $("#tidyToggle").classList.toggle("on",SET.autonotes);
+  $("#cageToggle").textContent="Cage helper: "+(SET.cagehelp?"on":"off");
+  $("#cageToggle").classList.toggle("on",SET.cagehelp);
+}
+$("#cageToggle").addEventListener("click",()=>{
+  SET.cagehelp=!SET.cagehelp;store.set("zs_set_cagehelp",SET.cagehelp);syncToggles();if(G)refresh();
+  toast(SET.cagehelp?"Cage combinations shown for the selected cage":"Cage helper off — combinations page is still there");
+});
+$("#errToggle").addEventListener("click",()=>{
+  SET.errors=!SET.errors;store.set("zs_set_errors",SET.errors);syncToggles();if(G)refresh();
+  toast(SET.errors?"Mistakes will be highlighted":"Flying blind — good luck");
+});
+$("#tidyToggle").addEventListener("click",()=>{
+  SET.autonotes=!SET.autonotes;store.set("zs_set_autonotes",SET.autonotes);syncToggles();
+  toast(SET.autonotes?"Notes tidy themselves when you place a digit":"Notes are all yours now");
+});
+syncToggles();
 $("#noteBtn").addEventListener("click",()=>{noteMode=!noteMode;$("#noteBtn").classList.toggle("on",noteMode);});
+$("#paintBtn").addEventListener("click",()=>{
+  paintMode=!paintMode;
+  $("#paintBtn").classList.toggle("on",paintMode);
+  $("#palette").classList.toggle("on",paintMode);
+  if(paintMode)document.querySelectorAll(".sw").forEach(sw=>sw.classList.toggle("on",+sw.dataset.c===paintColor));
+});
+document.querySelectorAll(".sw").forEach(sw=>{
+  sw.addEventListener("click",()=>{
+    paintColor=+sw.dataset.c;
+    document.querySelectorAll(".sw").forEach(x=>x.classList.toggle("on",x===sw));
+  });
+});
+$("#hintBtn").addEventListener("click",()=>{
+  if(!G||G.done)return;
+  if(G.hintCell>=0&&!G.val[G.hintCell]){
+    const m=candidatesFor(G.hintCell);
+    let d=0;for(let x=1;x<=9;x++)if(m===(1<<x))d=x;
+    select(G.hintCell);
+    const was=noteMode;noteMode=false;
+    G.assists++;place(d||G.sol[G.hintCell]);
+    noteMode=was;G.hintCell=-1;return;
+  }
+  for(let i=0;i<81;i++){
+    if(G.val[i])continue;
+    if(popcnt(candidatesFor(i))===1){
+      G.hintCell=i;select(i);
+      cellEls[i].classList.remove("pulse");void cellEls[i].offsetWidth;cellEls[i].classList.add("pulse");
+      toast("This cell has exactly one possibility — hint again to place it");
+      return;
+    }
+  }
+  let best=-1,bc=10,bm=0;
+  for(let i=0;i<81;i++){
+    if(G.val[i])continue;
+    const m=candidatesFor(i),c=popcnt(m);
+    if(c&&c<bc){bc=c;best=i;bm=m;}
+  }
+  if(best>=0){
+    snapshot();G.notes[best]=bm;G.assists++;
+    select(best);save();refresh();
+    toast("No forced cell right now — pencilled the tightest cell's candidates");
+  }
+});
+$("#autoNotesBtn").addEventListener("click",()=>{
+  if(!G||G.done)return;
+  snapshot();
+  for(let i=0;i<81;i++)if(!G.val[i])G.notes[i]=candidatesFor(i);
+  save();refresh();toast("Candidates pencilled in every empty cell");
+});
+$("#shareResBtn").addEventListener("click",async()=>{
+  const base=location.origin+location.pathname;
+  const url=G.isDaily?base:base+"#/p/"+G.diff+"/"+G.num;
+  const line2="⏱ "+fmtTime(G.elapsed)+" · "+(G.assists?"🛟 "+G.assists+" assist"+(G.assists>1?"s":""):"✅ no assists");
+  const txt="Zaney Sudoku — "+puzzleTitle()+" ("+DIFF_LABEL[G.diff]+")\n"+line2+"\n"+url;
+  try{await navigator.clipboard.writeText(txt);toast("Result copied — go on, brag");}
+  catch(e){prompt("Copy your result:",txt);}
+});
 $("#eraseBtn").addEventListener("click",()=>place(0));
 $("#undoBtn").addEventListener("click",undoMove);
 $("#pauseBtn").addEventListener("click",()=>setPaused(!G.paused));
@@ -860,6 +1155,7 @@ $("#checkBtn").addEventListener("click",()=>{
 $("#revealBtn").addEventListener("click",()=>{
   if(!G||G.sel<0){toast("Select a cell first");return;}
   if(G.given[G.sel]||G.val[G.sel]===G.sol[G.sel]){toast("That one's already right");return;}
+  G.assists++;
   const wasNote=noteMode;noteMode=false;place(G.sol[G.sel]);noteMode=wasNote;
 });
 $("#shareBtn").addEventListener("click",async()=>{
@@ -914,7 +1210,7 @@ function buildBrowse(){
     card.className="dcard";card.style.setProperty("--dc",DIFF_META[d].col);
     card.innerHTML=
       "<h2>"+DIFF_LABEL[d]+"</h2>"+
-      "<div class='meta'>"+DIFF_META[d].blurb+"<br>100,000 puzzles · #1–#100,000</div>"+
+      "<div class='meta'>"+DIFF_META[d].blurb+"<br>100,000 puzzles · "+store.get("zs_done_"+d,[]).length+" solved</div>"+
       "<div class='row'>"+
       "<input type='number' min='1' max='"+MAX_NUM+"' placeholder='Puzzle #' aria-label='"+DIFF_LABEL[d]+" puzzle number'>"+
       "<button class='go'>Play</button>"+
@@ -935,13 +1231,50 @@ function buildBrowse(){
   }
 }
 
+/* ---------- stats + archive ---------- */
+function renderStats(){
+  const st=store.get("zs_stats",{});
+  const log=store.get("zs_daily",{});
+  const today=dailyInfo().dayN;
+  let cur=0,d=log[today]?today:today-1;
+  while(log[d]){cur++;d--;}
+  let best=0,run=0;
+  for(let i=1;i<=today;i++){run=log[i]?run+1:0;if(run>best)best=run;}
+  let total=0;DIFFS.forEach(k=>{if(st[k])total+=st[k].n;});
+  $("#stCur").textContent=cur;
+  $("#stBest").textContent=best;
+  $("#stTotal").textContent=total;
+  $("#stBody").innerHTML=DIFFS.map(k=>{
+    const s=st[k];
+    return "<tr><td>"+DIFF_LABEL[k]+"</td>"+(s
+      ?"<td>"+s.n+"</td><td>"+fmtTime(s.best)+"</td><td>"+fmtTime(Math.round(s.tot/s.n))+"</td>"
+      :"<td>—</td><td>—</td><td>—</td>")+"</tr>";
+  }).join("");
+}
+function renderArchive(){
+  const log=store.get("zs_daily",{});
+  const today=dailyInfo().dayN;
+  const from=Math.max(1,today-119);
+  let out="";
+  for(let n=today;n>=from;n--){
+    const date=new Date(DAILY_EPOCH+(n-1)*86400000);
+    const label=date.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"});
+    const diff=DIFF_LABEL[dailyDiffFor(n)];
+    const done=log[n];
+    out+="<a class='arch' href='#/d/"+n+"'><b>#"+n+"</b> "+label+" · "+diff+
+         "<span class='when'>"+(done?"<span class='ok'>✓ "+fmtTime(done.t)+"</span>":"Play →")+"</span></a>";
+  }
+  if(from>1)out+="<p class='statnote'>Showing the last 120 dailies.</p>";
+  $("#archList").innerHTML=out;
+}
+
 /* ---------- routing / theme / ads ---------- */
 function show(view){
-  ["Game","Browse","Help"].forEach(v=>$("#view"+v).classList.toggle("on",v.toLowerCase()===view));
-  const map={game:"",browse:"navBrowse",help:"navHelp"};
-  ["navDaily","navBrowse","navHelp"].forEach(id=>$("#"+id).classList.remove("on"));
+  ["Game","Browse","Help","Stats","Archive"].forEach(v=>$("#view"+v).classList.toggle("on",v.toLowerCase()===view));
+  ["navDaily","navBrowse","navStats","navHelp"].forEach(id=>$("#"+id).classList.remove("on"));
   if(view==="browse")$("#navBrowse").classList.add("on");
   else if(view==="help")$("#navHelp").classList.add("on");
+  else if(view==="stats"||view==="archive")$("#navStats").classList.add("on");
   else if(G&&G.isDaily)$("#navDaily").classList.add("on");
   window.scrollTo(0,0);
 }
@@ -949,8 +1282,15 @@ function route(){
   const h=location.hash;let m;
   if((m=h.match(/^#\/p\/(easy|medium|hard|expert)\/(\d+)/))){
     show("game");openPuzzle(Math.max(1,+m[2]),m[1],false);
+  }else if((m=h.match(/^#\/d\/(\d+)/))){
+    const n=Math.min(Math.max(1,+m[1]),dailyInfo().dayN);
+    show("game");openPuzzle(900000+n,dailyDiffFor(n),true,n);
   }else if(h.startsWith("#/browse")){
-    show("browse");
+    buildBrowse();show("browse");
+  }else if(h.startsWith("#/stats")){
+    renderStats();show("stats");
+  }else if(h.startsWith("#/archive")){
+    renderArchive();show("archive");
   }else if(h.startsWith("#/help")){
     show("help");
   }else{
@@ -966,13 +1306,18 @@ $("#themeBtn").addEventListener("click",()=>{
   document.documentElement.dataset.theme=cur;store.set("zs_theme",cur);
 });
 
+if(location.search.indexOf("thanks=1")>=0){
+  store.set("zs_noads",true);
+  setTimeout(()=>toast("Thank you! Ads are off on this device ☕"),600);
+}
 (function initAds(){
   if(!CONFIG.ADSENSE_CLIENT)return;
+  if(store.get("zs_noads",false))return;
   const s=document.createElement("script");
   s.async=true;s.crossOrigin="anonymous";
   s.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client="+CONFIG.ADSENSE_CLIENT;
   document.head.appendChild(s);
-  const slots=[["#adTop",CONFIG.ADSENSE_SLOT_TOP],["#adBottom",CONFIG.ADSENSE_SLOT_BOTTOM]];
+  const slots=[["#adTop",CONFIG.ADSENSE_SLOT_TOP],["#adBottom",CONFIG.ADSENSE_SLOT_BOTTOM],["#adWin",CONFIG.ADSENSE_SLOT_WIN]];
   for(const [sel,slot] of slots){
     if(!slot)continue;
     const wrap=$(sel),ins=wrap.querySelector("ins");
@@ -982,6 +1327,12 @@ $("#themeBtn").addEventListener("click",()=>{
     (window.adsbygoogle=window.adsbygoogle||[]).push({});
   }
 })();
+(function initTipJar(){
+  if(!CONFIG.STRIPE_LINK||store.get("zs_noads",false))return;
+  const a=$("#tipJar");a.href=CONFIG.STRIPE_LINK;a.classList.add("on");
+})();
+if("serviceWorker" in navigator&&location.protocol==="https:")
+  navigator.serviceWorker.register("./sw.js").catch(()=>{});
 
 buildPad();buildBrowse();route();
 </script>
