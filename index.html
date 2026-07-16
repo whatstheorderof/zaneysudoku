@@ -12,12 +12,23 @@
 <script defer src="/_vercel/insights/script.js"></script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icon-48.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="canonical" href="https://zaneysudoku.com/">
 <meta property="og:title" content="Zaney Sudoku — killer sudoku with zero dead ends">
 <meta property="og:description" content="400,000 killer sudoku puzzles, every one verified to have exactly one solution. Daily puzzle, pencil marks, dark mode.">
+<meta property="og:url" content="https://zaneysudoku.com/">
+<meta property="og:site_name" content="Zaney Sudoku">
 <meta property="og:image" content="https://zaneysudoku.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="Zaney Sudoku — killer sudoku with zero dead ends">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Zaney Sudoku — killer sudoku with zero dead ends">
+<meta name="twitter:image" content="https://zaneysudoku.com/og.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","description":"Free killer sudoku with 400,000 verified puzzles and a daily challenge."}</script>
 <script>
 /* ===================== CONFIG ===================== */
 /* Google AdSense: after your site is approved, paste your IDs below.
@@ -30,7 +41,7 @@ const CONFIG = {
   ADSENSE_SLOT_BOTTOM: "",
   ADSENSE_SLOT_WIN: "",          /* optional: shown on the solved screen */
   STRIPE_LINK: ""                /* optional: Stripe Payment Link for the "remove ads" tip jar.
-                                    Set the link's success redirect to https://YOURDOMAIN/?thanks=1 */
+                                    Set the link's success redirect to https://zaneysudoku.com/?thanks=1 */
 };
 /* Apply saved theme before paint to avoid flash */
 try{const t=localStorage.getItem("zs_theme");if(t)document.documentElement.dataset.theme=JSON.parse(t);else if(matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.dataset.theme="dark";}catch(e){}
@@ -368,6 +379,7 @@ footer a{color:var(--muted)}
   <nav>
     <a href="#/daily" id="navDaily">Daily</a>
     <a href="#/browse" id="navBrowse">Browse puzzles</a>
+    <a href="#/cowards" id="navCow">Coward's</a>
     <a href="#/stats" id="navStats">Stats</a>
     <a href="#/help" id="navHelp">How to play</a>
     <button id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">◐</button>
@@ -441,7 +453,20 @@ footer a{color:var(--muted)}
       <p>100,000 killer sudokus per difficulty. Each one is verified to have exactly one solution before it reaches your screen — so if you're stuck, it's solvable, promise.</p>
     </div>
     <div class="diff-grid" id="diffGrid"></div>
-    <p class="browse-note">Puzzle numbers are permanent: #4,821 on Hard is the same puzzle for everyone, forever. Send a friend the link and race them.</p>
+    <p class="browse-note">Puzzle numbers are permanent: #4,821 on Hard is the same puzzle for everyone, forever. Send a friend the link and race them.<br>Cages not your thing? There's <a href="#/cowards" style="color:var(--violet)">classic sudoku</a> too — including a mode for absolute beginners.</p>
+  </section>
+
+  <!-- ================= COWARD'S (classic sudoku) ================= -->
+  <section class="view" id="viewCowards">
+    <div class="browse-head">
+      <h1>Coward's <em>Sudoku</em></h1>
+      <p>No cages. No sums. No shame. Classic sudoku for people who looked at killer and said "absolutely not" — starting with a mode so gentle it teaches you the game as you play.</p>
+    </div>
+    <div class="diff-grid" id="cowGrid"></div>
+    <div class="browse-note" style="text-align:left;max-width:560px">
+      <p style="margin-bottom:8px"><b style="color:var(--ink)">Never played sudoku?</b> Three rules: every row has the digits 1–9 once, every column has 1–9 once, and every 3×3 box has 1–9 once. That's the whole game.</p>
+      <p>Every Coward's puzzle is verified to be solvable one obvious step at a time — at any moment there's always a cell with only one possible digit. No guessing, no techniques, no shame in tapping 💡 Hint to have it pointed out. When it starts feeling easy, Classic Easy is next — and when you're ready for the real thing, <a href="#/daily" style="color:var(--violet)">killer sudoku</a> awaits.</p>
+    </div>
   </section>
 
   <!-- ================= STATS ================= -->
@@ -560,7 +585,9 @@ const DIFF_CFG = {
   hard:   { sizes:[2,3,3,4,4,5], mergeSingles:true,  maxMerge:5, reveal:0 },
   expert: { sizes:[3,4,4,5,5,6], mergeSingles:true,  maxMerge:6, reveal:0 }
 };
-const DIFF_LABEL = { easy:"Easy", medium:"Medium", hard:"Hard", expert:"Expert" };
+const DIFF_LABEL = { easy:"Easy", medium:"Medium", hard:"Hard", expert:"Expert", cowards:"Coward's" };
+const CLASSIC_DIFFS = ["cowards","easy","medium","hard"];
+const CLASSIC_CLUES = { cowards:47, easy:40, medium:32, hard:26 };
 const MAX_NUM = 100000;
 
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -766,6 +793,104 @@ function dealPuzzle(num,diff){
   return {num,diff,sol,cages:P.cages,cageOf:P.cageOf,given};
 }
 
+/* ============ classic (cage-free) sudoku ============ */
+function countClassic(vals,limit,budget){
+  limit=limit||2;budget=budget||20000;
+  const rows=new Int16Array(9),cols=new Int16Array(9),boxes=new Int16Array(9);
+  const val=Uint8Array.from(vals);
+  for(let i=0;i<81;i++)if(val[i]){
+    const r=(i/9)|0,c=i%9,b=((r/3)|0)*3+((c/3)|0),bit=1<<val[i];
+    rows[r]|=bit;cols[c]|=bit;boxes[b]|=bit;
+  }
+  let count=0,nodes=0,abort=false;
+  function search(){
+    if(abort||count>=limit)return;
+    if(++nodes>budget){abort=true;return;}
+    let best=-1,bm=0,bc=10;
+    for(let i=0;i<81;i++){
+      if(val[i])continue;
+      const r=(i/9)|0,c=i%9,b=((r/3)|0)*3+((c/3)|0);
+      let m=0,cnt=0;
+      for(let d=1;d<=9;d++){const bit=1<<d;if(!((rows[r]|cols[c]|boxes[b])&bit)){m|=bit;cnt++;}}
+      if(cnt===0)return;
+      if(cnt<bc){bc=cnt;best=i;bm=m;if(cnt===1)break;}
+    }
+    if(best===-1){count++;return;}
+    const r=(best/9)|0,c=best%9,b=((r/3)|0)*3+((c/3)|0);
+    for(let d=1;d<=9;d++){
+      const bit=1<<d;if(!(bm&bit))continue;
+      val[best]=d;rows[r]|=bit;cols[c]|=bit;boxes[b]|=bit;
+      search();
+      val[best]=0;rows[r]^=bit;cols[c]^=bit;boxes[b]^=bit;
+      if(abort||count>=limit)return;
+    }
+  }
+  search();
+  return {count,aborted:abort};
+}
+/* Solvable with naked + hidden singles alone - the Coward's guarantee */
+function singlesSolvable(vals){
+  const val=Uint8Array.from(vals);
+  const rows=new Int16Array(9),cols=new Int16Array(9),boxes=new Int16Array(9);
+  const bx=i=>((((i/9)|0)/3)|0)*3+(((i%9)/3)|0);
+  let filled=0;
+  for(let i=0;i<81;i++)if(val[i]){
+    const bit=1<<val[i];rows[(i/9)|0]|=bit;cols[i%9]|=bit;boxes[bx(i)]|=bit;filled++;
+  }
+  const put=(i,d)=>{const bit=1<<d;val[i]=d;rows[(i/9)|0]|=bit;cols[i%9]|=bit;boxes[bx(i)]|=bit;filled++;};
+  let moved=true;
+  while(moved&&filled<81){
+    moved=false;
+    for(let i=0;i<81;i++){
+      if(val[i])continue;
+      const r=(i/9)|0,c=i%9,b=bx(i);
+      let cnt=0,dd=0;
+      for(let d=1;d<=9;d++)if(!((rows[r]|cols[c]|boxes[b])&(1<<d))){cnt++;dd=d;}
+      if(cnt===1){put(i,dd);moved=true;}
+      else if(cnt===0)return false;
+    }
+    if(!moved){
+      const units=[];
+      for(let r=0;r<9;r++){const u=[];for(let c=0;c<9;c++)u.push(r*9+c);units.push(u);}
+      for(let c=0;c<9;c++){const u=[];for(let r=0;r<9;r++)u.push(r*9+c);units.push(u);}
+      for(let b=0;b<9;b++){const br=((b/3)|0)*3,bc=(b%3)*3,u=[];
+        for(let r=0;r<3;r++)for(let c=0;c<3;c++)u.push((br+r)*9+bc+c);units.push(u);}
+      for(const u of units){
+        for(let d=1;d<=9;d++){
+          const bit=1<<d;let pos=-1,n=0,present=false;
+          for(const i of u){
+            if(val[i]===d){present=true;break;}
+            if(val[i])continue;
+            if(!((rows[(i/9)|0]|cols[i%9]|boxes[bx(i)])&bit)){n++;pos=i;}
+          }
+          if(!present&&n===1){put(pos,d);moved=true;}
+        }
+      }
+    }
+  }
+  return filled===81;
+}
+function dealClassic(num,diff){
+  const base=seedFor(num,"easy");
+  const rng=mulberry32(((base ^ Math.imul(CLASSIC_DIFFS.indexOf(diff)+11,0xC2B2AE3D))>>>0)||7);
+  const sol=genSolution(rng);
+  const target=CLASSIC_CLUES[diff];
+  const vals=Uint8Array.from(sol);
+  const order=shuffle([...Array(81).keys()],rng);
+  let clues=81;
+  for(const i of order){
+    if(clues<=target)break;
+    const keep=vals[i];vals[i]=0;
+    const r=countClassic(vals);
+    let ok=r.count===1&&!r.aborted;
+    if(ok&&diff==="cowards")ok=singlesSolvable(vals);
+    if(ok)clues--;else vals[i]=keep;
+  }
+  const given=new Uint8Array(81);
+  for(let i=0;i<81;i++)if(vals[i])given[i]=1;
+  return {num,diff,kind:"classic",sol,cages:[],cageOf:new Int16Array(81).fill(-1),given};
+}
+
 /* Daily: number + difficulty derive from the UTC date */
 const DAILY_EPOCH=Date.UTC(2026,0,1);
 function dailyDiffFor(dayN){
@@ -852,6 +977,11 @@ function cageGeometry(cages,cageOf){
 }
 function drawCages(){
   const svg=$("#cageSvg");
+  if(!G.cages.length){
+    svg.innerHTML="";
+    cellEls.forEach(el=>el.classList.remove("anchor"));
+    return;
+  }
   const geo=cageGeometry(G.cages,G.cageOf);
   svg.innerHTML=`<path d="${geo.path}"></path>${geo.labels}`;
   cellEls.forEach(el=>el.classList.remove("anchor"));
@@ -867,6 +997,11 @@ function candidatesFor(i){
     const v=G.val[j];if(!v||j===i)continue;
     const rj=(j/9)|0,cj=j%9,bj=((rj/3)|0)*3+((cj/3)|0);
     if(rj===r||cj===c||bj===b)unit|=1<<v;
+  }
+  if(g<0){
+    let m0=0;
+    for(let d=1;d<=9;d++)if(!(unit&(1<<d)))m0|=1<<d;
+    return m0;
   }
   const cage=G.cages[g];
   let cageM=0,sum=0,left=0;
@@ -935,7 +1070,7 @@ function refresh(){
     const r=(i/9)|0,c=i%9,b=((r/3)|0)*3+((c/3)|0);
     el.classList.toggle("given",!!G.given[i]);
     el.classList.toggle("sel",i===G.sel);
-    el.classList.toggle("peer",G.sel>=0&&i!==G.sel&&(r===selR||c===selC||b===selB||G.cageOf[i]===G.cageOf[G.sel]));
+    el.classList.toggle("peer",G.sel>=0&&i!==G.sel&&(r===selR||c===selC||b===selB||(G.cageOf[G.sel]>=0&&G.cageOf[i]===G.cageOf[G.sel])));
     el.classList.toggle("same",!!(selVal&&v===selVal&&i!==G.sel));
     el.classList.toggle("err",err.has(i));
     el.classList.toggle("errbg",err.has(i));
@@ -953,7 +1088,7 @@ function refresh(){
 
 function updateComboStrip(){
   const el=$("#comboStrip");
-  if(!SET.cagehelp||G.sel<0||G.done){el.textContent="";return;}
+  if(!SET.cagehelp||G.sel<0||G.done||G.cageOf[G.sel]<0){el.textContent="";return;}
   const g=G.cages[G.cageOf[G.sel]];
   let sum=0,left=0,used=0;
   for(const j of g.cells){if(G.val[j]){sum+=G.val[j];used|=1<<G.val[j];}else left++;}
@@ -967,7 +1102,7 @@ function updateComboStrip(){
 }
 
 /* ---------- moves ---------- */
-function progKey(){return "zs_prog_"+G.diff+"_"+G.num;}
+function progKey(){return "zs_prog_"+(G.kind==="classic"?"c_":"")+G.diff+"_"+G.num;}
 function save(){store.set(progKey(),{v:Array.from(G.val),n:Array.from(G.notes),p:Array.from(G.paint),a:G.assists,t:G.elapsed,done:G.done,
   u:G.undo.slice(-30).map(s=>({v:Array.from(s.v),n:Array.from(s.n)}))});}
 function snapshot(){G.undo.push({v:G.val.slice(),n:G.notes.slice()});if(G.undo.length>300)G.undo.shift();}
@@ -986,7 +1121,7 @@ function place(d){
       const r=(G.sel/9)|0,c=G.sel%9,b=((r/3)|0)*3+((c/3)|0);
       for(let i=0;i<81;i++){
         const ri=(i/9)|0,ci=i%9,bi=((ri/3)|0)*3+((ci/3)|0);
-        if(ri===r||ci===c||bi===b||G.cageOf[i]===G.cageOf[G.sel])G.notes[i]&=~(1<<d);
+        if(ri===r||ci===c||bi===b||(G.cageOf[G.sel]>=0&&G.cageOf[i]===G.cageOf[G.sel]))G.notes[i]&=~(1<<d);
       }
     }
   }
@@ -1023,47 +1158,56 @@ function makeWorker(){
     const parts=[
       "const DIFFS="+JSON.stringify(DIFFS),
       "const DIFF_CFG="+JSON.stringify(DIFF_CFG),
+      "const CLASSIC_DIFFS="+JSON.stringify(CLASSIC_DIFFS),
+      "const CLASSIC_CLUES="+JSON.stringify(CLASSIC_CLUES),
       mulberry32,seedFor,shuffle,neighbors,connectedSet,
-      genSolution,buildCages,countSolutions,peelCell,splitOne,dealPuzzle
+      genSolution,buildCages,countSolutions,peelCell,splitOne,dealPuzzle,
+      countClassic,singlesSolvable,dealClassic
     ].map(x=>typeof x==="string"?x+";":x.toString()+";").join("\n");
     const blob=new Blob([parts+
-      ';onmessage=e=>{const p=dealPuzzle(e.data.num,e.data.diff);'+
-      'postMessage({num:e.data.num,diff:e.data.diff,sol:Array.from(p.sol),cages:p.cages,cageOf:Array.from(p.cageOf),given:Array.from(p.given)});};'
+      ';onmessage=e=>{const p=e.data.kind==="classic"?dealClassic(e.data.num,e.data.diff):dealPuzzle(e.data.num,e.data.diff);'+
+      'postMessage({num:e.data.num,diff:e.data.diff,kind:e.data.kind,sol:Array.from(p.sol),cages:p.cages,cageOf:Array.from(p.cageOf),given:Array.from(p.given)});};'
     ],{type:"text/javascript"});
     return new Worker(URL.createObjectURL(blob));
   }catch(e){return null;}
 }
-function requestDeal(num,diff,cb){
+function requestDeal(num,diff,kind,cb){
   const tok=++dealToken;
   const finish=P=>{if(tok===dealToken)cb(P);};
+  const dealFn=()=>kind==="classic"?dealClassic(num,diff):dealPuzzle(num,diff);
   if(dealWorker===null)dealWorker=makeWorker()||false;
   if(dealWorker){
     dealWorker.onmessage=e=>{
       const d=e.data;
-      finish({num:d.num,diff:d.diff,sol:Uint8Array.from(d.sol),cages:d.cages,
+      finish({num:d.num,diff:d.diff,kind:d.kind,sol:Uint8Array.from(d.sol),cages:d.cages,
               cageOf:Int16Array.from(d.cageOf),given:Uint8Array.from(d.given)});
     };
-    dealWorker.onerror=()=>{dealWorker=false;setTimeout(()=>finish(dealPuzzle(num,diff)),20);};
-    dealWorker.postMessage({num,diff});
+    dealWorker.onerror=()=>{dealWorker=false;setTimeout(()=>finish(dealFn()),20);};
+    dealWorker.postMessage({num,diff,kind});
   }else{
-    setTimeout(()=>finish(dealPuzzle(num,diff)),30);
+    setTimeout(()=>finish(dealFn()),30);
   }
 }
 
 /* ---------- open / win ---------- */
 function puzzleTitle(){
   if(G.isDaily)return "Daily #"+G.dayN;
-  return DIFF_LABEL[G.diff]+" #"+G.num.toLocaleString("en-GB");
+  const n="#"+G.num.toLocaleString("en-GB");
+  if(G.kind==="classic")
+    return (G.diff==="cowards"?"Coward's":"Classic "+DIFF_LABEL[G.diff])+" "+n;
+  return DIFF_LABEL[G.diff]+" "+n;
 }
-function openPuzzle(num,diff,daily,dayN){
-  if(G&&G.num===num&&G.diff===diff)return;
+function statKey(){return (G.kind==="classic"?"classic_":"")+G.diff;}
+function openPuzzle(num,diff,daily,dayN,kind){
+  kind=kind||"killer";
+  if(G&&G.num===num&&G.diff===diff&&G.kind===kind)return;
   stopClock();
   buildBoardDom();
   $("#dealing").classList.add("on");
   $("#dealTxt").textContent="Dealing "+(daily?"the daily":DIFF_LABEL[diff].toLowerCase()+" #"+num.toLocaleString("en-GB"))+"…";
   $("#pTitle").textContent="";$("#pSub").textContent="";
-  requestDeal(num,diff,P=>{
-    G={...P,isDaily:!!daily,dayN,
+  requestDeal(num,diff,kind,P=>{
+    G={...P,kind,isDaily:!!daily,dayN,
        val:new Uint8Array(81),notes:new Uint16Array(81),paint:new Uint8Array(81),
        sel:-1,undo:[],assists:0,hintCell:-1,elapsed:0,paused:false,done:false};
     for(let i=0;i<81;i++)if(G.given[i])G.val[i]=G.sol[i];
@@ -1079,28 +1223,33 @@ function openPuzzle(num,diff,daily,dayN){
     $("#pTitle").textContent=puzzleTitle();
     $("#pSub").textContent=G.isDaily
       ? DIFF_LABEL[G.diff]+" · "+new Date(DAILY_EPOCH+(G.dayN-1)*86400000).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"})
-      : G.cages.length+" cages · unique solution verified";
+      : G.kind==="classic"
+        ? (G.diff==="cowards"
+            ? "solvable one obvious step at a time — no guessing, promise"
+            : G.given.reduce((s,v)=>s+v,0)+" givens · unique solution verified")
+        : G.cages.length+" cages · unique solution verified";
     $("#clockTxt").textContent=fmtTime(G.elapsed);
     $("#dealing").classList.remove("on");
     setPaused(false);refresh();startClock();
-    track("puzzle_start",{difficulty:diff,daily:!!daily});
+    track("puzzle_start",{difficulty:diff,daily:!!daily,kind});
   });
 }
 function win(){
   G.done=true;save();stopClock();
   const st=store.get("zs_stats",{});
-  const s=st[G.diff]=st[G.diff]||{n:0,best:0,tot:0};
+  const sk=statKey();
+  const s=st[sk]=st[sk]||{n:0,best:0,tot:0};
   s.n++;s.tot+=G.elapsed;
   if(!s.best||G.elapsed<s.best)s.best=G.elapsed;
   store.set("zs_stats",st);
-  const done=store.get("zs_done_"+G.diff,[]);
-  if(done.indexOf(G.num)===-1){done.push(G.num);store.set("zs_done_"+G.diff,done);}
+  const done=store.get("zs_done_"+sk,[]);
+  if(done.indexOf(G.num)===-1){done.push(G.num);store.set("zs_done_"+sk,done);}
   if(G.isDaily){
     const log=store.get("zs_daily",{});
     log[G.dayN]={t:G.elapsed,d:G.diff};
     store.set("zs_daily",log);
   }
-  track("puzzle_complete",{difficulty:G.diff,seconds:G.elapsed,daily:!!G.isDaily,assists:G.assists});
+  track("puzzle_complete",{difficulty:G.diff,seconds:G.elapsed,daily:!!G.isDaily,assists:G.assists,kind:G.kind});
   $("#winTxt").textContent=puzzleTitle()+" solved in "+fmtTime(G.elapsed)+". Every row, box and cage checks out.";
   buzz(30);
   $("#winModal").classList.add("on");
@@ -1206,9 +1355,9 @@ $("#autoNotesBtn").addEventListener("click",()=>{
 });
 $("#shareResBtn").addEventListener("click",async()=>{
   const base=location.origin+location.pathname;
-  const url=G.isDaily?base:base+"#/p/"+G.diff+"/"+G.num;
+  const url=G.isDaily?base:base+(G.kind==="classic"?"#/c/":"#/p/")+G.diff+"/"+G.num;
   const line2="⏱ "+fmtTime(G.elapsed)+" · "+(G.assists?"🛟 "+G.assists+" assist"+(G.assists>1?"s":""):"✅ no assists");
-  const txt="Zaney Sudoku — "+puzzleTitle()+" ("+DIFF_LABEL[G.diff]+")\n"+line2+"\n"+url;
+  const txt="Zaney Sudoku — "+puzzleTitle()+(G.kind==="classic"?"":" ("+DIFF_LABEL[G.diff]+")")+"\n"+line2+"\n"+url;
   try{await navigator.clipboard.writeText(txt);toast("Result copied — go on, brag");}
   catch(e){prompt("Copy your result:",txt);}
 });
@@ -1241,14 +1390,14 @@ $("#revealBtn").addEventListener("click",()=>{
   const wasNote=noteMode;noteMode=false;place(G.sol[G.sel]);noteMode=wasNote;
 });
 $("#shareBtn").addEventListener("click",async()=>{
-  const url=location.origin+location.pathname+"#/p/"+G.diff+"/"+G.num;
+  const url=location.origin+location.pathname+(G.kind==="classic"?"#/c/":"#/p/")+G.diff+"/"+G.num;
   try{await navigator.clipboard.writeText(url);toast("Link copied — same puzzle for everyone");}
   catch(e){prompt("Copy this link:",url);}
 });
 $("#nextBtn").addEventListener("click",()=>{
   $("#winModal").classList.remove("on");
   const nextNum=G.isDaily?1+((Math.random()*MAX_NUM)|0):Math.min(G.num+1,MAX_NUM);
-  location.hash="#/p/"+G.diff+"/"+nextNum;
+  location.hash=(G.kind==="classic"?"#/c/":"#/p/")+G.diff+"/"+nextNum;
 });
 $("#browseBtn2").addEventListener("click",()=>{$("#winModal").classList.remove("on");location.hash="#/browse";});
 
@@ -1330,7 +1479,9 @@ $("#printBtn").addEventListener("click",()=>{
   }
   $("#printSheet").innerHTML=
     "<h2>Zaney Sudoku — "+puzzleTitle()+" ("+DIFF_LABEL[G.diff]+")</h2>"+
-    "<p>Rows, columns and boxes contain 1–9. Cage digits add to the corner number, no repeats in a cage. Play online: zaneysudoku.com</p>"+
+    (G.kind==="classic"
+      ?"<p>Fill every row, column and 3×3 box with the digits 1–9. Play online: zaneysudoku.com</p>"
+      :"<p>Rows, columns and boxes contain 1–9. Cage digits add to the corner number, no repeats in a cage. Play online: zaneysudoku.com</p>")+
     `<svg viewBox="-4 -4 908 908" xmlns="http://www.w3.org/2000/svg">${grid}`+
     `<g fill="none" stroke="#555" stroke-width="2" stroke-dasharray="6 5"><path d="${geo.path}"/></g>`+
     `<g font-family="Inter,sans-serif" font-size="20" font-weight="bold">${geo.labels.replace(/<rect /g,'<rect fill="#fff" ').replace(/<text /g,'<text fill="#333" ')}</g>`+
@@ -1359,6 +1510,7 @@ function maybeTutorial(){if(!store.get("zs_seen_tut",false)){tutN=0;tutShow();}}
 
 /* ---------- backup / restore ---------- */
 const BK_KEYS=["zs_stats","zs_daily","zs_done_easy","zs_done_medium","zs_done_hard","zs_done_expert",
+  "zs_done_classic_cowards","zs_done_classic_easy","zs_done_classic_medium","zs_done_classic_hard",
   "zs_set_errors","zs_set_autonotes","zs_set_cagehelp","zs_set_zen","zs_set_haptics","zs_theme","zs_seen_tut"];
 $("#expBtn").addEventListener("click",async()=>{
   const data={};
@@ -1392,13 +1544,17 @@ function renderStats(){
   while(log[d]){cur++;d--;}
   let best=0,run=0;
   for(let i=1;i<=today;i++){run=log[i]?run+1:0;if(run>best)best=run;}
-  let total=0;DIFFS.forEach(k=>{if(st[k])total+=st[k].n;});
+  let total=0;Object.keys(st).forEach(k=>{if(st[k]&&st[k].n)total+=st[k].n;});
   $("#stCur").textContent=cur;
   $("#stBest").textContent=best;
   $("#stTotal").textContent=total;
-  $("#stBody").innerHTML=DIFFS.map(k=>{
+  const rows=[
+    ...DIFFS.map(k=>[k,"Killer "+DIFF_LABEL[k]]),
+    ...CLASSIC_DIFFS.map(k=>["classic_"+k,k==="cowards"?"Coward's":"Classic "+DIFF_LABEL[k]])
+  ];
+  $("#stBody").innerHTML=rows.map(([k,label])=>{
     const s=st[k];
-    return "<tr><td>"+DIFF_LABEL[k]+"</td>"+(s
+    return "<tr><td>"+label+"</td>"+(s
       ?"<td>"+s.n+"</td><td>"+fmtTime(s.best)+"</td><td>"+fmtTime(Math.round(s.tot/s.n))+"</td>"
       :"<td>—</td><td>—</td><td>—</td>")+"</tr>";
   }).join("");
@@ -1420,20 +1576,62 @@ function renderArchive(){
   $("#archList").innerHTML=out;
 }
 
+/* ---------- coward's corner (classic) ---------- */
+const CLASSIC_META={
+  cowards:{label:"Coward's",blurb:"The training-wheels special: ~47 givens and always one obvious next move. If you can count to 9, you're qualified.",col:"#4CAF7D"},
+  easy:{label:"Classic Easy",blurb:"A normal easy sudoku. Fewer hand-holds, still friendly.",col:"#5847E0"},
+  medium:{label:"Classic Medium",blurb:"The newspaper standard. Pencil marks recommended.",col:"#E08A2E"},
+  hard:{label:"Classic Hard",blurb:"26-ish givens. Proper thinking required — still no cages though, coward.",col:"#D6484F"}
+};
+function buildCowards(){
+  const grid=$("#cowGrid");grid.innerHTML="";
+  for(const d of CLASSIC_DIFFS){
+    const m=CLASSIC_META[d];
+    const card=document.createElement("div");
+    card.className="dcard";card.style.setProperty("--dc",m.col);
+    card.innerHTML=
+      "<h2>"+m.label+"</h2>"+
+      "<div class='meta'>"+m.blurb+"<br>100,000 puzzles · "+store.get("zs_done_classic_"+d,[]).length+" solved</div>"+
+      "<div class='row'>"+
+      "<input type='number' min='1' max='"+MAX_NUM+"' placeholder='Puzzle #' aria-label='"+m.label+" puzzle number'>"+
+      "<button class='go'>Play</button>"+
+      "<button class='rand' title='Random puzzle'>🎲</button>"+
+      "</div>";
+    const input=card.querySelector("input");
+    const go=()=>{
+      let n=parseInt(input.value,10);
+      if(!n||n<1||n>MAX_NUM){toast("Enter a number from 1 to 100,000");return;}
+      location.hash="#/c/"+d+"/"+n;
+    };
+    card.querySelector(".go").addEventListener("click",go);
+    input.addEventListener("keydown",e=>{if(e.key==="Enter")go();});
+    card.querySelector(".rand").addEventListener("click",()=>{
+      location.hash="#/c/"+d+"/"+(1+((Math.random()*MAX_NUM)|0));
+    });
+    grid.appendChild(card);
+  }
+}
+
 /* ---------- routing / theme / ads ---------- */
 function show(view){
-  ["Game","Browse","Help","Stats","Archive"].forEach(v=>$("#view"+v).classList.toggle("on",v.toLowerCase()===view));
-  ["navDaily","navBrowse","navStats","navHelp"].forEach(id=>$("#"+id).classList.remove("on"));
+  ["Game","Browse","Help","Stats","Archive","Cowards"].forEach(v=>$("#view"+v).classList.toggle("on",v.toLowerCase()===view));
+  ["navDaily","navBrowse","navCow","navStats","navHelp"].forEach(id=>$("#"+id).classList.remove("on"));
   if(view==="browse")$("#navBrowse").classList.add("on");
+  else if(view==="cowards")$("#navCow").classList.add("on");
   else if(view==="help")$("#navHelp").classList.add("on");
   else if(view==="stats"||view==="archive")$("#navStats").classList.add("on");
   else if(G&&G.isDaily)$("#navDaily").classList.add("on");
+  else if(G&&G.kind==="classic")$("#navCow").classList.add("on");
   window.scrollTo(0,0);
 }
 function route(){
   const h=location.hash;let m;
   if((m=h.match(/^#\/p\/(easy|medium|hard|expert)\/(\d+)/))){
     show("game");openPuzzle(Math.max(1,+m[2]),m[1],false);
+  }else if((m=h.match(/^#\/c\/(cowards|easy|medium|hard)\/(\d+)/))){
+    show("game");openPuzzle(Math.max(1,+m[2]),m[1],false,undefined,"classic");
+  }else if(h.startsWith("#/cowards")){
+    buildCowards();show("cowards");
   }else if((m=h.match(/^#\/d\/(\d+)/))){
     const n=Math.min(Math.max(1,+m[1]),dailyInfo().dayN);
     show("game");openPuzzle(900000+n,dailyDiffFor(n),true,n);
