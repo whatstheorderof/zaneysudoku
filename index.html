@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Zaney Sudoku — 1.2 Million Sudoku Puzzles: Killer, Classic & Sudoku X</title>
-<meta name="description" content="1.2 million sudoku puzzles, every one verified to have exactly one solution: killer sudoku, classic sudoku (with a true beginner mode) and Sudoku X. Daily puzzle, pencil marks, dark mode, free.">
+<title>Zaney Sudoku — 1.7 Million Puzzles: Killer, Classic, Sudoku X & Hyper</title>
+<meta name="description" content="1.7 million sudoku puzzles, every one verified to have exactly one solution: killer sudoku, classic sudoku (with a true beginner mode), Sudoku X and Hyper Sudoku. Three daily puzzles, pencil marks, dark mode, free.">
 <meta name="theme-color" content="#F6F5EF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#12141C" media="(prefers-color-scheme: dark)">
 <link rel="preload" href="fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
@@ -15,8 +15,8 @@
 <link rel="icon" type="image/png" sizes="48x48" href="icon-48.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="canonical" href="https://zaneysudoku.com/">
-<meta property="og:title" content="Zaney Sudoku — 1.2 million puzzles, zero dead ends">
-<meta property="og:description" content="Killer, classic and Sudoku X — 1.2 million puzzles, every one verified to have exactly one solution. Daily puzzle, pencil marks, dark mode.">
+<meta property="og:title" content="Zaney Sudoku — 1.7 million puzzles, zero dead ends">
+<meta property="og:description" content="Killer, classic, Sudoku X and Hyper — 1.7 million puzzles, every one verified to have exactly one solution. Three dailies, pencil marks, dark mode.">
 <meta property="og:url" content="https://zaneysudoku.com/">
 <meta property="og:site_name" content="Zaney Sudoku">
 <meta property="og:image" content="https://zaneysudoku.com/og.png">
@@ -26,9 +26,9 @@
 <meta property="og:image:alt" content="Zaney Sudoku — killer sudoku with zero dead ends">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Zaney Sudoku — 1.2 million puzzles, zero dead ends">
+<meta name="twitter:title" content="Zaney Sudoku — 1.7 million puzzles, zero dead ends">
 <meta name="twitter:image" content="https://zaneysudoku.com/og.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","description":"1.2 million verified sudoku puzzles: killer, classic and Sudoku X, plus a daily challenge."},{"@type":"WebApplication","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","applicationCategory":"GameApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"},"description":"Free browser sudoku: killer, classic and Sudoku X. Every puzzle machine-verified for a unique solution."}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","description":"1.7 million verified sudoku puzzles: killer, classic, Sudoku X and Hyper, plus three daily challenges."},{"@type":"WebApplication","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","applicationCategory":"GameApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"},"description":"Free browser sudoku: killer, classic, Sudoku X and Hyper. Every puzzle machine-verified for a unique solution."}]}</script>
 <script>
 /* ===================== CONFIG ===================== */
 /* Google AdSense: after your site is approved, paste your IDs below.
@@ -381,6 +381,7 @@ footer a{color:var(--muted)}
     <a href="#/daily" id="navDaily">Daily</a>
     <a href="#/browse" id="navBrowse">Browse puzzles</a>
     <a href="#/cowards" id="navCow">Coward's</a>
+    <a href="#/variants" id="navVar">Variants</a>
     <a href="#/stats" id="navStats">Stats</a>
     <a href="#/help" id="navHelp">How to play</a>
     <button id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">◐</button>
@@ -403,6 +404,7 @@ footer a{color:var(--muted)}
           <button id="pauseBtn" title="Pause" aria-label="Pause">⏸</button>
         </div>
       </div>
+      <div class="combostrip" id="dailyStrip" style="margin:0 auto 10px"></div>
       <div class="playarea">
       <div class="board-wrap">
         <div id="board" tabindex="0" aria-label="Killer sudoku board"></div>
@@ -450,15 +452,27 @@ footer a{color:var(--muted)}
   <!-- ================= BROWSE ================= -->
   <section class="view" id="viewBrowse">
     <div class="browse-head">
-      <h1>1.2 million puzzles.<br><em>Zero dead ends.</em></h1>
-      <p>Killer sudoku is the main event: 100,000 puzzles per difficulty, each verified to have exactly one solution before it reaches your screen — so if you're stuck, it's solvable, promise. Sudoku X and <a href="#/cowards" style="color:var(--violet)">classic</a> live here too.</p>
+      <h1>1.7 million puzzles.<br><em>Zero dead ends.</em></h1>
+      <p>Killer sudoku is the main event: 100,000 puzzles per difficulty — now including Nightmare — each verified to have exactly one solution before it reaches your screen. <a href="#/variants" style="color:var(--violet)">Sudoku X, Hyper</a> and <a href="#/cowards" style="color:var(--violet)">classic</a> live here too.</p>
     </div>
     <div class="diff-grid" id="diffGrid"></div>
     <p class="browse-note" id="bResume" style="margin-top:14px"></p>
-    <h2 class="vh1" style="text-align:center;margin-top:38px">Sudoku <span style="color:var(--violet)">X</span> — the diagonal twist</h2>
-    <p class="browse-note" style="margin-top:4px">Classic rules, plus both shaded diagonals must also hold 1–9. Two extra constraints, whole new solve.</p>
+    <p class="browse-note">Puzzle numbers are permanent: #4,821 on Hard is the same puzzle for everyone, forever. Send a friend the link and race them.<br>Want a different flavour? <a href="#/variants" style="color:var(--violet)">Sudoku X and Hyper</a> · <a href="#/cowards" style="color:var(--violet)">classic sudoku</a> for beginners.</p>
+  </section>
+
+  <!-- ================= VARIANTS (Sudoku X + Hyper) ================= -->
+  <section class="view" id="viewVariants">
+    <div class="browse-head">
+      <h1>Sudoku <em>X</em></h1>
+      <p>Classic rules plus one elegant twist: both shaded diagonals must also hold 1–9. The centre cell sits on both — start there.</p>
+    </div>
     <div class="diff-grid" id="xGrid"></div>
-    <p class="browse-note">Puzzle numbers are permanent: #4,821 on Hard is the same puzzle for everyone, forever. Send a friend the link and race them.<br>Cages not your thing? There's <a href="#/cowards" style="color:var(--violet)">classic sudoku</a> too — including a mode for absolute beginners.</p>
+    <div class="browse-head" style="margin-top:44px">
+      <h1 style="font-size:clamp(24px,5vw,34px)">Hyper Sudoku</h1>
+      <p>Four extra 3×3 windows, shaded on the grid, each holding 1–9. Thirteen boxes' worth of constraints on one grid.</p>
+    </div>
+    <div class="diff-grid" id="hGrid"></div>
+    <p class="browse-note">Every variant puzzle is verified for a unique solution, prints with its shading, and shares by permanent number.</p>
   </section>
 
   <!-- ================= COWARD'S (classic sudoku) ================= -->
@@ -506,6 +520,46 @@ footer a{color:var(--muted)}
     </div>
   </section>
 
+  <!-- ================= SOLUTIONS (gated) ================= -->
+  <section class="view" id="viewSolutions">
+    <div class="stats-col">
+      <h1 class="vh1">Solutions</h1>
+      <div id="solGate">
+        <p class="statnote">This corner is for book production and the truly defeated. Password required.</p>
+        <div style="display:flex;gap:8px;max-width:340px">
+          <input id="solPw" type="password" placeholder="Password" style="flex:1;min-width:0;background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:16px">
+          <button class="tool" style="padding:10px 18px" id="solGo">Enter</button>
+        </div>
+      </div>
+      <div id="solTool" style="display:none">
+        <p class="statnote">Look up any puzzle's full solution. Print pairs nicely for book layouts.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+          <select id="solMode" style="background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 10px;font-size:15px">
+            <option value="killer">Killer</option>
+            <option value="classic">Classic</option>
+            <option value="x">Sudoku X</option>
+            <option value="hyper">Hyper</option>
+            <option value="dkiller">Daily (Killer)</option>
+            <option value="dclassic">Daily Classic</option>
+            <option value="dx">Daily X</option>
+          </select>
+          <select id="solDiff" style="background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 10px;font-size:15px"></select>
+          <input id="solNum" type="number" min="1" placeholder="Puzzle #" style="width:120px;background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:16px">
+          <button class="tool" style="padding:10px 18px" id="solShow">Show</button>
+        </div>
+        <div id="solOut"></div>
+        <h2 class="vh1" style="font-size:20px;margin:30px 0 6px">Bulk export for books</h2>
+        <p class="statnote">Exports puzzles + solutions as a text file. Max 500 per batch (100 for killer — those take a second each to deal).</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="bulkFrom" type="number" min="1" placeholder="From #" style="width:110px;background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:16px">
+          <input id="bulkTo" type="number" min="1" placeholder="To #" style="width:110px;background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:16px">
+          <button class="tool" style="padding:10px 18px" id="bulkGo">Export range</button>
+        </div>
+        <p class="statnote" id="bulkProg"></p>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= HELP ================= -->
   <section class="view" id="viewHelp">
     <div class="help">
@@ -521,8 +575,8 @@ footer a{color:var(--muted)}
       <div class="tip"><b>Learn the forced combos.</b> A 2-cell cage summing to 3 can only be 1+2. Sum 4 is 1+3. Sum 16 is 7+9, and 17 is 8+9. These are your free squares.</div>
       <div class="tip"><b>Use the rule of 45.</b> Every row, column and box sums to 45. If a box is covered by cages totalling 43 plus one cell poking out, that cell's cage overflow tells you its value.</div>
       <div class="tip"><b>Pencil marks are not cheating.</b> Tap ✏️ Notes (or press N) and jot candidates. Placing a digit automatically tidies your notes in that row, column, box and cage.</div>
-      <h2>Where do 1.2 million puzzles come from?</h2>
-      <p>Every puzzle number is dealt deterministically from its number — the same number always produces the same puzzle, on any device. As it's dealt, a solver verifies the puzzle has exactly one solution before you see it. That applies across all three games: killer, classic (including Coward's) and Sudoku X. No broken puzzles, no ambiguous endings.</p>
+      <h2>Where do 1.7 million puzzles come from?</h2>
+      <p>Every puzzle number is dealt deterministically from its number — the same number always produces the same puzzle, on any device. As it's dealt, a solver verifies the puzzle has exactly one solution before you see it. That applies across every game: killer (all the way up to Nightmare), classic (including Coward's), Sudoku X and Hyper. No broken puzzles, no ambiguous endings.</p>
       <h2>Controls</h2>
       <ul>
         <li>Arrow keys move around the grid, 1–9 places a digit.</li>
@@ -545,7 +599,7 @@ footer a{color:var(--muted)}
   <a href="classic-sudoku.html">classic</a> ·
   <a href="about.html">about</a> ·
   <a href="terms.html">terms</a> ·
-  <a href="privacy.html">privacy</a> · made in London
+  <a href="privacy.html">privacy</a> · <a href="#/solutions">solutions</a> · made in London
 </footer>
 
 <div class="modal" id="winModal">
@@ -558,6 +612,7 @@ footer a{color:var(--muted)}
       <button class="ghost" id="shareResBtn">Share result</button>
       <button class="ghost" id="browseBtn2">Browse</button>
     </div>
+    <a id="winChain" class="linkbtn" style="display:none;margin-top:12px"></a>
     <div class="ad-slot" id="adWin"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
     <a class="tipjar" id="tipJar" target="_blank" rel="noopener">☕ Enjoying it? Remove ads for a one-off tip</a>
   </div>
@@ -585,18 +640,26 @@ footer a{color:var(--muted)}
    splitting cages deterministically until exactly one solution remains.
    ===================================================================== */
 
-const DIFFS = ["easy","medium","hard","expert"];
+const DIFFS = ["easy","medium","hard","expert","nightmare"];
 const DIFF_CFG = {
   easy:   { sizes:[1,2,2,2,3,3], mergeSingles:false, maxMerge:0, reveal:5 },
   medium: { sizes:[2,2,3,3,3,4], mergeSingles:true,  maxMerge:4, reveal:0 },
   hard:   { sizes:[2,3,3,4,4,5], mergeSingles:true,  maxMerge:5, reveal:0 },
-  expert: { sizes:[3,4,4,5,5,6], mergeSingles:true,  maxMerge:6, reveal:0 }
+  expert: { sizes:[3,4,4,5,5,6], mergeSingles:true,  maxMerge:6, reveal:0 },
+  nightmare:{ sizes:[4,5,5,6,6,7], mergeSingles:true, maxMerge:7, reveal:0 }
 };
-const DIFF_LABEL = { easy:"Easy", medium:"Medium", hard:"Hard", expert:"Expert", cowards:"Coward's" };
+const DIFF_LABEL = { easy:"Easy", medium:"Medium", hard:"Hard", expert:"Expert", nightmare:"Nightmare", cowards:"Coward's" };
 const CLASSIC_DIFFS = ["cowards","easy","medium","hard"];
 const CLASSIC_CLUES = { cowards:47, easy:40, medium:32, hard:26 };
 const X_DIFFS = ["easy","medium","hard","expert"];
 const X_CLUES = { easy:38, medium:31, hard:26, expert:22 };
+const H_DIFFS = ["easy","medium","hard","expert"];
+const H_CLUES = { easy:38, medium:31, hard:26, expert:23 };
+function hyperWin(r,c){
+  const wr=(r>=1&&r<=3)?0:(r>=5&&r<=7)?1:-1;
+  const wc=(c>=1&&c<=3)?0:(c>=5&&c<=7)?1:-1;
+  return (wr<0||wc<0)?-1:wr*2+wc;
+}
 const MAX_NUM = 100000;
 
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -606,25 +669,27 @@ function neighbors(c){const r=(c/9)|0,k=c%9,out=[];if(r>0)out.push(c-9);if(r<8)o
 function connectedSet(cells){if(cells.length<=1)return true;const set=new Set(cells),seen=new Set([cells[0]]),q=[cells[0]];while(q.length){const c=q.pop();for(const n of neighbors(c))if(set.has(n)&&!seen.has(n)){seen.add(n);q.push(n);}}return seen.size===cells.length;}
 
 /* Complete solved grid via seeded backtracking */
-function genSolution(rng,useX){
+function genSolution(rng,useX,useH){
   const g=new Uint8Array(81),rows=new Int16Array(9),cols=new Int16Array(9),boxes=new Int16Array(9);
-  const diag=new Int16Array(2);
+  const diag=new Int16Array(2),wins=new Int16Array(4);
   const digits=[1,2,3,4,5,6,7,8,9];
   function fill(i){
     if(i===81)return true;
     const r=(i/9)|0,c=i%9,b=((r/3)|0)*3+((c/3)|0);
     const on0=useX&&r===c,on1=useX&&r+c===8;
+    const w=useH?hyperWin(r,c):-1;
     const order=shuffle(digits.slice(),rng);
     for(const d of order){
       const bit=1<<d;
       if((rows[r]|cols[c]|boxes[b])&bit)continue;
       if(on0&&(diag[0]&bit))continue;
       if(on1&&(diag[1]&bit))continue;
+      if(w>=0&&(wins[w]&bit))continue;
       rows[r]|=bit;cols[c]|=bit;boxes[b]|=bit;g[i]=d;
-      if(on0)diag[0]|=bit;if(on1)diag[1]|=bit;
+      if(on0)diag[0]|=bit;if(on1)diag[1]|=bit;if(w>=0)wins[w]|=bit;
       if(fill(i+1))return true;
       rows[r]^=bit;cols[c]^=bit;boxes[b]^=bit;g[i]=0;
-      if(on0)diag[0]^=bit;if(on1)diag[1]^=bit;
+      if(on0)diag[0]^=bit;if(on1)diag[1]^=bit;if(w>=0)wins[w]^=bit;
     }
     return false;
   }
@@ -809,20 +874,23 @@ function dealPuzzle(num,diff){
 }
 
 /* ============ classic (cage-free) sudoku ============ */
-function countClassic(vals,limit,budget,useX){
+function countClassic(vals,limit,budget,useX,useH){
   limit=limit||2;budget=budget||20000;
-  const rows=new Int16Array(9),cols=new Int16Array(9),boxes=new Int16Array(9),diag=new Int16Array(2);
+  const rows=new Int16Array(9),cols=new Int16Array(9),boxes=new Int16Array(9),diag=new Int16Array(2),wins=new Int16Array(4);
   const val=Uint8Array.from(vals);
   const dm=(r,c)=>(useX?((r===c?1:0)|(r+c===8?2:0)):0);
+  const wm=(r,c)=>(useH?hyperWin(r,c):-1);
   for(let i=0;i<81;i++)if(val[i]){
     const r=(i/9)|0,c=i%9,b=((r/3)|0)*3+((c/3)|0),bit=1<<val[i];
     rows[r]|=bit;cols[c]|=bit;boxes[b]|=bit;
     const k=dm(r,c);if(k&1)diag[0]|=bit;if(k&2)diag[1]|=bit;
+    const w=wm(r,c);if(w>=0)wins[w]|=bit;
   }
   let count=0,nodes=0,abort=false;
   function mask(r,c,b){
     let m=rows[r]|cols[c]|boxes[b];
     const k=dm(r,c);if(k&1)m|=diag[0];if(k&2)m|=diag[1];
+    const w=wm(r,c);if(w>=0)m|=wins[w];
     return m;
   }
   function search(){
@@ -839,14 +907,14 @@ function countClassic(vals,limit,budget,useX){
       if(cnt<bc){bc=cnt;best=i;bm=m;if(cnt===1)break;}
     }
     if(best===-1){count++;return;}
-    const r=(best/9)|0,c=best%9,b=((r/3)|0)*3+((c/3)|0),k=dm(r,c);
+    const r=(best/9)|0,c=best%9,b=((r/3)|0)*3+((c/3)|0),k=dm(r,c),w=wm(r,c);
     for(let d=1;d<=9;d++){
       const bit=1<<d;if(!(bm&bit))continue;
       val[best]=d;rows[r]|=bit;cols[c]|=bit;boxes[b]|=bit;
-      if(k&1)diag[0]|=bit;if(k&2)diag[1]|=bit;
+      if(k&1)diag[0]|=bit;if(k&2)diag[1]|=bit;if(w>=0)wins[w]|=bit;
       search();
       val[best]=0;rows[r]^=bit;cols[c]^=bit;boxes[b]^=bit;
-      if(k&1)diag[0]^=bit;if(k&2)diag[1]^=bit;
+      if(k&1)diag[0]^=bit;if(k&2)diag[1]^=bit;if(w>=0)wins[w]^=bit;
       if(abort||count>=limit)return;
     }
   }
@@ -935,6 +1003,25 @@ function dealX(num,diff){
   return {num,diff,kind:"x",sol,cages:[],cageOf:new Int16Array(81).fill(-1),given};
 }
 
+function dealHyper(num,diff){
+  const base=seedFor(num,"hard");
+  const rng=mulberry32(((base ^ Math.imul(H_DIFFS.indexOf(diff)+53,0x165667B1))>>>0)||17);
+  const sol=genSolution(rng,false,true);
+  const target=H_CLUES[diff];
+  const vals=Uint8Array.from(sol);
+  const order=shuffle([...Array(81).keys()],rng);
+  let clues=81;
+  for(const i of order){
+    if(clues<=target)break;
+    const keep=vals[i];vals[i]=0;
+    const r=countClassic(vals,2,40000,false,true);
+    if(r.count===1&&!r.aborted)clues--;else vals[i]=keep;
+  }
+  const given=new Uint8Array(81);
+  for(let i=0;i<81;i++)if(vals[i])given[i]=1;
+  return {num,diff,kind:"hyper",sol,cages:[],cageOf:new Int16Array(81).fill(-1),given};
+}
+
 /* Daily: number + difficulty derive from the UTC date */
 const DAILY_EPOCH=Date.UTC(2026,0,1);
 function dailyDiffFor(dayN){
@@ -945,6 +1032,11 @@ function dailyInfo(){
   const dayN=Math.floor((Date.now()-DAILY_EPOCH)/86400000)+1;
   return {dayN,num:900000+dayN,diff:dailyDiffFor(dayN)};
 }
+function dailyClassicDiff(dayN){
+  const wd=new Date(DAILY_EPOCH+(dayN-1)*86400000).getUTCDay();
+  return (wd===1||wd===2)?"easy":(wd===3||wd===4)?"medium":"hard";
+}
+function dailyXDiff(dayN){return dailyDiffFor(dayN);}
 /* =====================================================================
    UI
    ===================================================================== */
@@ -1032,6 +1124,11 @@ function drawCages(){
         if(8-i!==i)s+=`<rect class="xr" x="${(8-i)*100}" y="${i*100}" width="100" height="100"></rect>`;
       }
       svg.innerHTML=s;
+    }else if(G.kind==="hyper"){
+      let s="";
+      for(const [r0,c0] of [[1,1],[1,5],[5,1],[5,5]])
+        s+=`<rect class="xr" x="${c0*100}" y="${r0*100}" width="300" height="300"></rect>`;
+      svg.innerHTML=s;
     }else{
       svg.innerHTML="";
     }
@@ -1049,10 +1146,11 @@ function candidatesFor(i){
   const r=(i/9)|0,c=i%9,b=((r/3)|0)*3+((c/3)|0),g=G.cageOf[i];
   let unit=0;
   const xd0=G.kind==="x"&&r===c,xd1=G.kind==="x"&&r+c===8;
+  const hw=G.kind==="hyper"?hyperWin(r,c):-1;
   for(let j=0;j<81;j++){
     const v=G.val[j];if(!v||j===i)continue;
     const rj=(j/9)|0,cj=j%9,bj=((rj/3)|0)*3+((cj/3)|0);
-    if(rj===r||cj===c||bj===b||(xd0&&rj===cj)||(xd1&&rj+cj===8))unit|=1<<v;
+    if(rj===r||cj===c||bj===b||(xd0&&rj===cj)||(xd1&&rj+cj===8)||(hw>=0&&hyperWin(rj,cj)===hw))unit|=1<<v;
   }
   if(g<0){
     let m0=0;
@@ -1103,6 +1201,13 @@ function computeErrors(){
     mark(Array.from({length:9},(_,i)=>i*9+i));
     mark(Array.from({length:9},(_,i)=>i*9+(8-i)));
   }
+  if(G.kind==="hyper"){
+    for(const [r0,c0] of [[1,1],[1,5],[5,1],[5,5]]){
+      const u=[];
+      for(let r=0;r<3;r++)for(let c=0;c<3;c++)u.push((r0+r)*9+c0+c);
+      mark(u);
+    }
+  }
   for(const g of G.cages){
     mark(g.cells);
     let sum=0,filled=0;
@@ -1131,7 +1236,8 @@ function refresh(){
     el.classList.toggle("given",!!G.given[i]);
     el.classList.toggle("sel",i===G.sel);
     const xpeer=G.kind==="x"&&G.sel>=0&&((selR===selC&&r===c)||(selR+selC===8&&r+c===8));
-    el.classList.toggle("peer",G.sel>=0&&i!==G.sel&&(r===selR||c===selC||b===selB||xpeer||(G.cageOf[G.sel]>=0&&G.cageOf[i]===G.cageOf[G.sel])));
+    const hpeer=G.kind==="hyper"&&G.sel>=0&&hyperWin(selR,selC)>=0&&hyperWin(r,c)===hyperWin(selR,selC);
+    el.classList.toggle("peer",G.sel>=0&&i!==G.sel&&(r===selR||c===selC||b===selB||xpeer||hpeer||(G.cageOf[G.sel]>=0&&G.cageOf[i]===G.cageOf[G.sel])));
     el.classList.toggle("same",!!(selVal&&v===selVal&&i!==G.sel));
     el.classList.toggle("err",err.has(i));
     el.classList.toggle("errbg",err.has(i));
@@ -1163,7 +1269,7 @@ function updateComboStrip(){
 }
 
 /* ---------- moves ---------- */
-function progKey(){return "zs_prog_"+(G.kind==="classic"?"c_":G.kind==="x"?"x_":"")+G.diff+"_"+G.num;}
+function progKey(){return "zs_prog_"+(G.kind==="classic"?"c_":G.kind==="x"?"x_":G.kind==="hyper"?"h_":"")+G.diff+"_"+G.num;}
 function save(){store.set(progKey(),{v:Array.from(G.val),n:Array.from(G.notes),p:Array.from(G.paint),a:G.assists,t:G.elapsed,done:G.done,
   u:G.undo.slice(-30).map(s=>({v:Array.from(s.v),n:Array.from(s.n)}))});}
 function snapshot(){G.undo.push({v:G.val.slice(),n:G.notes.slice()});if(G.undo.length>300)G.undo.shift();}
@@ -1183,7 +1289,8 @@ function place(d){
       for(let i=0;i<81;i++){
         const ri=(i/9)|0,ci=i%9,bi=((ri/3)|0)*3+((ci/3)|0);
         const xd=(G.kind==="x")&&((r===c&&ri===ci)||(r+c===8&&ri+ci===8));
-        if(ri===r||ci===c||bi===b||xd||(G.cageOf[G.sel]>=0&&G.cageOf[i]===G.cageOf[G.sel]))G.notes[i]&=~(1<<d);
+        const hd=(G.kind==="hyper")&&hyperWin(r,c)>=0&&hyperWin(ri,ci)===hyperWin(r,c);
+        if(ri===r||ci===c||bi===b||xd||hd||(G.cageOf[G.sel]>=0&&G.cageOf[i]===G.cageOf[G.sel]))G.notes[i]&=~(1<<d);
       }
     }
   }
@@ -1224,12 +1331,15 @@ function makeWorker(){
       "const CLASSIC_CLUES="+JSON.stringify(CLASSIC_CLUES),
       "const X_DIFFS="+JSON.stringify(X_DIFFS),
       "const X_CLUES="+JSON.stringify(X_CLUES),
+      "const H_DIFFS="+JSON.stringify(H_DIFFS),
+      "const H_CLUES="+JSON.stringify(H_CLUES),
+      hyperWin,
       mulberry32,seedFor,shuffle,neighbors,connectedSet,
       genSolution,buildCages,countSolutions,peelCell,splitOne,dealPuzzle,
-      countClassic,singlesSolvable,dealClassic,dealX
+      countClassic,singlesSolvable,dealClassic,dealX,dealHyper
     ].map(x=>typeof x==="string"?x+";":x.toString()+";").join("\n");
     const blob=new Blob([parts+
-      ';onmessage=e=>{const p=e.data.kind==="classic"?dealClassic(e.data.num,e.data.diff):e.data.kind==="x"?dealX(e.data.num,e.data.diff):dealPuzzle(e.data.num,e.data.diff);'+
+      ';onmessage=e=>{const p=e.data.kind==="classic"?dealClassic(e.data.num,e.data.diff):e.data.kind==="x"?dealX(e.data.num,e.data.diff):e.data.kind==="hyper"?dealHyper(e.data.num,e.data.diff):dealPuzzle(e.data.num,e.data.diff);'+
       'postMessage({num:e.data.num,diff:e.data.diff,kind:e.data.kind,sol:Array.from(p.sol),cages:p.cages,cageOf:Array.from(p.cageOf),given:Array.from(p.given)});};'
     ],{type:"text/javascript"});
     return new Worker(URL.createObjectURL(blob));
@@ -1238,7 +1348,7 @@ function makeWorker(){
 function requestDeal(num,diff,kind,cb){
   const tok=++dealToken;
   const finish=P=>{if(tok===dealToken)cb(P);};
-  const dealFn=()=>kind==="classic"?dealClassic(num,diff):kind==="x"?dealX(num,diff):dealPuzzle(num,diff);
+  const dealFn=()=>kind==="classic"?dealClassic(num,diff):kind==="x"?dealX(num,diff):kind==="hyper"?dealHyper(num,diff):dealPuzzle(num,diff);
   if(dealWorker===null)dealWorker=makeWorker()||false;
   if(dealWorker){
     dealWorker.onmessage=e=>{
@@ -1255,14 +1365,15 @@ function requestDeal(num,diff,kind,cb){
 
 /* ---------- open / win ---------- */
 function puzzleTitle(){
-  if(G.isDaily)return "Daily #"+G.dayN;
+  if(G.isDaily)return (G.kind==="classic"?"Daily Classic #":G.kind==="x"?"Daily X #":"Daily #")+G.dayN;
   const n="#"+G.num.toLocaleString("en-GB");
   if(G.kind==="classic")
     return (G.diff==="cowards"?"Coward's":"Classic "+DIFF_LABEL[G.diff])+" "+n;
   if(G.kind==="x")return "Sudoku X "+DIFF_LABEL[G.diff]+" "+n;
+  if(G.kind==="hyper")return "Hyper "+DIFF_LABEL[G.diff]+" "+n;
   return DIFF_LABEL[G.diff]+" "+n;
 }
-function statKey(){return (G.kind==="classic"?"classic_":G.kind==="x"?"x_":"")+G.diff;}
+function statKey(){return (G.kind==="classic"?"classic_":G.kind==="x"?"x_":G.kind==="hyper"?"h_":"")+G.diff;}
 function openPuzzle(num,diff,daily,dayN,kind){
   kind=kind||"killer";
   if(G&&G.num===num&&G.diff===diff&&G.kind===kind)return;
@@ -1294,10 +1405,17 @@ function openPuzzle(num,diff,daily,dayN,kind){
             : G.given.reduce((s,v)=>s+v,0)+" givens · unique solution verified")
         : G.kind==="x"
           ? G.given.reduce((s,v)=>s+v,0)+" givens · diagonals hold 1–9 too · unique solution verified"
-          : G.cages.length+" cages · unique solution verified";
+          : G.kind==="hyper"
+            ? G.given.reduce((s,v)=>s+v,0)+" givens · four shaded windows also hold 1–9 · unique solution verified"
+            : G.cages.length+" cages · unique solution verified";
     $("#clockTxt").textContent=fmtTime(G.elapsed);
     $("#dealing").classList.remove("on");
     setPaused(false);refresh();startClock();
+    if(daily){
+      const dn=G.dayN,cur=G.kind;
+      const link=(k,label,hash)=>k===cur?"<b style='color:var(--violet)'>"+label+"</b>":"<a href='"+hash+"' style='color:var(--muted)'>"+label+"</a>";
+      $("#dailyStrip").innerHTML="Today's three: "+link("killer","Killer","#/d/"+dn)+" · "+link("classic","Classic","#/dc")+" · "+link("x","Sudoku X","#/dx");
+    }else $("#dailyStrip").innerHTML="";
     store.set("zs_last",{kind,diff,num,daily:!!daily,dayN});
     track("puzzle_start",{difficulty:diff,daily:!!daily,kind});
   });
@@ -1323,6 +1441,11 @@ function win(){
   $("#winTxt").textContent=puzzleTitle()+" solved in "+fmtTime(G.elapsed)+"."
     +(isPB?" 🏆 New personal best for this difficulty!":" Every unit checks out.");
   buzz(30);
+  const chain=$("#winChain");
+  if(G.isDaily&&G.kind==="killer"){chain.textContent="Play today's Classic →";chain.href="#/dc";chain.style.display="inline-block";}
+  else if(G.isDaily&&G.kind==="classic"){chain.textContent="Play today's Sudoku X →";chain.href="#/dx";chain.style.display="inline-block";}
+  else chain.style.display="none";
+  chain.onclick=()=>$("#winModal").classList.remove("on");
   $("#winModal").classList.add("on");
 }
 /* ---------- pad / buttons ---------- */
@@ -1426,7 +1549,7 @@ $("#autoNotesBtn").addEventListener("click",()=>{
 });
 $("#shareResBtn").addEventListener("click",async()=>{
   const base=location.origin+location.pathname;
-  const url=G.isDaily?base:base+(G.kind==="classic"?"#/c/":G.kind==="x"?"#/x/":"#/p/")+G.diff+"/"+G.num;
+  const url=G.isDaily?base:base+(G.kind==="classic"?"#/c/":G.kind==="x"?"#/x/":G.kind==="hyper"?"#/h/":"#/p/")+G.diff+"/"+G.num;
   const line2="⏱ "+fmtTime(G.elapsed)+" · "+(G.assists?"🛟 "+G.assists+" assist"+(G.assists>1?"s":""):"✅ no assists");
   const txt="Zaney Sudoku — "+puzzleTitle()+(G.kind==="classic"?"":" ("+DIFF_LABEL[G.diff]+")")+"\n"+line2+"\n"+url;
   try{await navigator.clipboard.writeText(txt);toast("Result copied — go on, brag");}
@@ -1461,14 +1584,14 @@ $("#revealBtn").addEventListener("click",()=>{
   const wasNote=noteMode;noteMode=false;place(G.sol[G.sel]);noteMode=wasNote;
 });
 $("#shareBtn").addEventListener("click",async()=>{
-  const url=location.origin+location.pathname+(G.kind==="classic"?"#/c/":G.kind==="x"?"#/x/":"#/p/")+G.diff+"/"+G.num;
+  const url=location.origin+location.pathname+(G.kind==="classic"?"#/c/":G.kind==="x"?"#/x/":G.kind==="hyper"?"#/h/":"#/p/")+G.diff+"/"+G.num;
   try{await navigator.clipboard.writeText(url);toast("Link copied — same puzzle for everyone");}
   catch(e){prompt("Copy this link:",url);}
 });
 $("#nextBtn").addEventListener("click",()=>{
   $("#winModal").classList.remove("on");
   const nextNum=G.isDaily?1+((Math.random()*MAX_NUM)|0):Math.min(G.num+1,MAX_NUM);
-  location.hash=(G.kind==="classic"?"#/c/":G.kind==="x"?"#/x/":"#/p/")+G.diff+"/"+nextNum;
+  location.hash=(G.kind==="classic"?"#/c/":G.kind==="x"?"#/x/":G.kind==="hyper"?"#/h/":"#/p/")+G.diff+"/"+nextNum;
 });
 $("#browseBtn2").addEventListener("click",()=>{$("#winModal").classList.remove("on");location.hash="#/browse";});
 
@@ -1503,7 +1626,8 @@ const DIFF_META={
   easy:{blurb:"Small cages, a few starter digits. A gentle way in.",col:"#4CAF7D"},
   medium:{blurb:"Classic killer. Combos and the rule of 45 earn their keep.",col:"#5847E0"},
   hard:{blurb:"Bigger cages, fewer certainties. Bring pencil marks.",col:"#E08A2E"},
-  expert:{blurb:"Sprawling cages and long deductions. Genuinely mean.",col:"#D6484F"}
+  expert:{blurb:"Sprawling cages and long deductions. Genuinely mean.",col:"#D6484F"},
+  nightmare:{blurb:"Cages up to seven cells. We are not responsible for what happens.",col:"#7A1F2B"}
 };
 function buildBrowse(){
   const grid=$("#diffGrid");grid.innerHTML="";
@@ -1534,36 +1658,49 @@ function buildBrowse(){
 }
 
 /* ---------- print blank puzzle ---------- */
-$("#printBtn").addEventListener("click",()=>{
-  if(!G)return;
-  const geo=cageGeometry(G.cages,G.cageOf);
+function puzzleSVG(P,withSolution){
+  const kind=P.kind||"killer";
+  let shade="";
+  if(kind==="x")for(let i=0;i<9;i++){
+    shade+=`<rect x="${i*100}" y="${i*100}" width="100" height="100" fill="#e8e8e8"/>`;
+    if(8-i!==i)shade+=`<rect x="${(8-i)*100}" y="${i*100}" width="100" height="100" fill="#e8e8e8"/>`;
+  }
+  if(kind==="hyper")for(const [r0,c0] of [[1,1],[1,5],[5,1],[5,5]])
+    shade+=`<rect x="${c0*100}" y="${r0*100}" width="300" height="300" fill="#e8e8e8"/>`;
   let grid="";
   for(let i=0;i<=9;i++){
     const w=(i%3===0)?3:1;
     grid+=`<line x1="${i*100}" y1="0" x2="${i*100}" y2="900" stroke="#000" stroke-width="${w}"/>`;
     grid+=`<line x1="0" y1="${i*100}" x2="900" y2="${i*100}" stroke="#000" stroke-width="${w}"/>`;
   }
-  let givens="";
-  for(let i=0;i<81;i++)if(G.given[i]){
+  let cageLayer="";
+  if(P.cages&&P.cages.length){
+    const geo=cageGeometry(P.cages,P.cageOf);
+    cageLayer=`<g fill="none" stroke="#555" stroke-width="2" stroke-dasharray="6 5"><path d="${geo.path}"/></g>`+
+      `<g font-family="Inter,sans-serif" font-size="20" font-weight="bold">${geo.labels.replace(/<rect /g,'<rect fill="#fff" ').replace(/<text /g,'<text fill="#333" ')}</g>`;
+  }
+  let digits="";
+  for(let i=0;i<81;i++){
     const r=(i/9)|0,c=i%9;
-    givens+=`<text x="${c*100+50}" y="${r*100+66}" text-anchor="middle" font-size="46" font-weight="bold" fill="#000" font-family="Inter,sans-serif">${G.sol[i]}</text>`;
+    if(P.given[i])
+      digits+=`<text x="${c*100+50}" y="${r*100+66}" text-anchor="middle" font-size="46" font-weight="bold" fill="#000" font-family="Inter,sans-serif">${P.sol[i]}</text>`;
+    else if(withSolution)
+      digits+=`<text x="${c*100+50}" y="${r*100+66}" text-anchor="middle" font-size="44" fill="#444" font-family="Inter,sans-serif">${P.sol[i]}</text>`;
   }
-  let xShade="";
-  if(G.kind==="x")for(let i=0;i<9;i++){
-    xShade+=`<rect x="${i*100}" y="${i*100}" width="100" height="100" fill="#e8e8e8"/>`;
-    if(8-i!==i)xShade+=`<rect x="${(8-i)*100}" y="${i*100}" width="100" height="100" fill="#e8e8e8"/>`;
-  }
+  return `<svg viewBox="-4 -4 908 908" xmlns="http://www.w3.org/2000/svg">${shade}${grid}${cageLayer}${digits}</svg>`;
+}
+$("#printBtn").addEventListener("click",()=>{
+  if(!G)return;
   $("#printSheet").innerHTML=
     "<h2>Zaney Sudoku — "+puzzleTitle()+" ("+DIFF_LABEL[G.diff]+")</h2>"+
     (G.kind==="classic"
       ?"<p>Fill every row, column and 3×3 box with the digits 1–9. Play online: zaneysudoku.com</p>"
       :G.kind==="x"
       ?"<p>Fill every row, column and 3×3 box with 1–9 — and both shaded diagonals must also contain 1–9. Play online: zaneysudoku.com</p>"
+      :G.kind==="hyper"
+      ?"<p>Fill every row, column and 3×3 box with 1–9 — and the four shaded windows must also contain 1–9. Play online: zaneysudoku.com</p>"
       :"<p>Rows, columns and boxes contain 1–9. Cage digits add to the corner number, no repeats in a cage. Play online: zaneysudoku.com</p>")+
-    `<svg viewBox="-4 -4 908 908" xmlns="http://www.w3.org/2000/svg">${xShade}${grid}`+
-    `<g fill="none" stroke="#555" stroke-width="2" stroke-dasharray="6 5"><path d="${geo.path}"/></g>`+
-    `<g font-family="Inter,sans-serif" font-size="20" font-weight="bold">${geo.labels.replace(/<rect /g,'<rect fill="#fff" ').replace(/<text /g,'<text fill="#333" ')}</g>`+
-    givens+`</svg>`;
+    puzzleSVG(G,false);
   window.print();
 });
 
@@ -1589,7 +1726,8 @@ function maybeTutorial(){if(!store.get("zs_seen_tut",false)){tutN=0;tutShow();}}
 /* ---------- backup / restore ---------- */
 const BK_KEYS=["zs_stats","zs_daily","zs_done_easy","zs_done_medium","zs_done_hard","zs_done_expert",
   "zs_done_classic_cowards","zs_done_classic_easy","zs_done_classic_medium","zs_done_classic_hard",
-  "zs_done_x_easy","zs_done_x_medium","zs_done_x_hard","zs_done_x_expert","zs_last",
+  "zs_done_x_easy","zs_done_x_medium","zs_done_x_hard","zs_done_x_expert",
+  "zs_done_nightmare","zs_done_h_easy","zs_done_h_medium","zs_done_h_hard","zs_done_h_expert","zs_last",
   "zs_set_errors","zs_set_autonotes","zs_set_cagehelp","zs_set_zen","zs_set_haptics","zs_theme","zs_seen_tut"];
 $("#expBtn").addEventListener("click",async()=>{
   const data={};
@@ -1630,7 +1768,8 @@ function renderStats(){
   const rows=[
     ...DIFFS.map(k=>[k,"Killer "+DIFF_LABEL[k]]),
     ...CLASSIC_DIFFS.map(k=>["classic_"+k,k==="cowards"?"Coward's":"Classic "+DIFF_LABEL[k]]),
-    ...X_DIFFS.map(k=>["x_"+k,"Sudoku X "+DIFF_LABEL[k]])
+    ...X_DIFFS.map(k=>["x_"+k,"Sudoku X "+DIFF_LABEL[k]]),
+    ...H_DIFFS.map(k=>["h_"+k,"Hyper "+DIFF_LABEL[k]])
   ];
   $("#stBody").innerHTML=rows.map(([k,label])=>{
     const s=st[k];
@@ -1728,48 +1867,212 @@ function buildX(){
   }
 }
 
+const H_META={
+  easy:{blurb:"The windows do half the scanning for you.",col:"#4CAF7D"},
+  medium:{blurb:"Thirteen boxes to satisfy. Stay organised.",col:"#5847E0"},
+  hard:{blurb:"26 givens across a very crowded grid.",col:"#E08A2E"},
+  expert:{blurb:"23 givens. The windows are your only friends.",col:"#D6484F"}
+};
+function buildHyper(){
+  const grid=$("#hGrid");grid.innerHTML="";
+  for(const d of H_DIFFS){
+    const m=H_META[d];
+    const card=document.createElement("div");
+    card.className="dcard";card.style.setProperty("--dc",m.col);
+    card.innerHTML=
+      "<h2>Hyper "+DIFF_LABEL[d]+"</h2>"+
+      "<div class='meta'>"+m.blurb+"<br>100,000 puzzles · "+store.get("zs_done_h_"+d,[]).length+" solved</div>"+
+      "<div class='row'>"+
+      "<input type='number' min='1' max='"+MAX_NUM+"' placeholder='Puzzle #' aria-label='Hyper "+DIFF_LABEL[d]+" puzzle number'>"+
+      "<button class='go'>Play</button>"+
+      "<button class='rand' title='Random puzzle'>🎲</button>"+
+      "</div>";
+    const input=card.querySelector("input");
+    const go=()=>{
+      let n=parseInt(input.value,10);
+      if(!n||n<1||n>MAX_NUM){toast("Enter a number from 1 to 100,000");return;}
+      location.hash="#/h/"+d+"/"+n;
+    };
+    card.querySelector(".go").addEventListener("click",go);
+    input.addEventListener("keydown",e=>{if(e.key==="Enter")go();});
+    card.querySelector(".rand").addEventListener("click",()=>{
+      location.hash="#/h/"+d+"/"+(1+((Math.random()*MAX_NUM)|0));
+    });
+    grid.appendChild(card);
+  }
+}
+
 /* ---------- resume-last chip ---------- */
 function resumeHtml(){
   const L=store.get("zs_last",null);
   if(!L)return "";
-  const pk="zs_prog_"+(L.kind==="classic"?"c_":L.kind==="x"?"x_":"")+L.diff+"_"+L.num;
+  const pk="zs_prog_"+(L.kind==="classic"?"c_":L.kind==="x"?"x_":L.kind==="hyper"?"h_":"")+L.diff+"_"+L.num;
   const prog=store.get(pk,null);
   if(!prog||prog.done)return "";
-  const hash=L.daily?("#/d/"+L.dayN):((L.kind==="classic"?"#/c/":L.kind==="x"?"#/x/":"#/p/")+L.diff+"/"+L.num);
+  const hash=L.daily?(L.kind==="classic"?"#/dc":L.kind==="x"?"#/dx":"#/d/"+L.dayN):((L.kind==="classic"?"#/c/":L.kind==="x"?"#/x/":L.kind==="hyper"?"#/h/":"#/p/")+L.diff+"/"+L.num);
   const name=L.daily?("Daily #"+L.dayN)
     :L.kind==="classic"?((L.diff==="cowards"?"Coward's":"Classic "+DIFF_LABEL[L.diff])+" #"+L.num)
     :L.kind==="x"?("Sudoku X "+DIFF_LABEL[L.diff]+" #"+L.num)
+    :L.kind==="hyper"?("Hyper "+DIFF_LABEL[L.diff]+" #"+L.num)
     :(DIFF_LABEL[L.diff]+" #"+L.num);
   return 'Puzzle in progress: <a href="'+hash+'" style="color:var(--violet);font-weight:700">Resume '+name+' →</a>';
 }
 
+/* ---------- solutions (gated) ---------- */
+const SOL_DIFFS={killer:DIFFS,classic:CLASSIC_DIFFS,x:X_DIFFS,hyper:H_DIFFS,dkiller:[],dclassic:[],dx:[]};
+function solDeal(mode,diff,num){
+  if(mode==="killer")return Object.assign(dealPuzzle(num,diff),{kind:"killer"});
+  if(mode==="classic")return dealClassic(num,diff);
+  if(mode==="x")return dealX(num,diff);
+  if(mode==="hyper")return dealHyper(num,diff);
+  if(mode==="dkiller")return Object.assign(dealPuzzle(900000+num,dailyDiffFor(num)),{kind:"killer"});
+  if(mode==="dclassic")return dealClassic(700000+num,dailyClassicDiff(num));
+  if(mode==="dx")return dealX(800000+num,dailyXDiff(num));
+}
+function solName(mode,P,num){
+  const d=DIFF_LABEL[P.diff];
+  if(mode==="dkiller")return "Daily #"+num+" ("+d+" killer)";
+  if(mode==="dclassic")return "Daily Classic #"+num+" ("+d+")";
+  if(mode==="dx")return "Daily X #"+num+" ("+d+")";
+  const k=P.kind==="classic"?(P.diff==="cowards"?"Coward's":"Classic "+d):P.kind==="x"?"Sudoku X "+d:P.kind==="hyper"?"Hyper "+d:"Killer "+d;
+  return k+" #"+num;
+}
+function gridText(P,withSol){
+  let out="";
+  for(let r=0;r<9;r++){
+    for(let c=0;c<9;c++){const i=r*9+c;out+=P.given[i]||withSol?P.sol[i]:".";}
+    out+="\n";
+  }
+  return out;
+}
+function cagesText(P){
+  if(!P.cages||!P.cages.length)return "";
+  return "Cages: "+P.cages.map(g=>g.sum+"("+g.cells.map(c=>"r"+(((c/9)|0)+1)+"c"+((c%9)+1)).join(",")+")").join("; ")+"\n";
+}
+function solDiffSync(){
+  const mode=$("#solMode").value,sel=$("#solDiff");
+  const ds=SOL_DIFFS[mode];
+  sel.innerHTML=ds.map(d=>"<option value='"+d+"'>"+DIFF_LABEL[d]+"</option>").join("");
+  sel.style.display=ds.length?"":"none";
+  $("#solNum").placeholder=mode.startsWith("d")?"Day #":"Puzzle #";
+}
+function initSolutions(){
+  if(store.get("zs_solutions_ok",false)){
+    $("#solGate").style.display="none";$("#solTool").style.display="block";solDiffSync();
+  }
+}
+$("#solGo").addEventListener("click",()=>{
+  if($("#solPw").value==="igiveup"){
+    store.set("zs_solutions_ok",true);initSolutions();
+    toast("Welcome, quitter. No judgement.");
+  }else toast("Not it. Hint: it's what you say when you open this page.");
+});
+$("#solPw").addEventListener("keydown",e=>{if(e.key==="Enter")$("#solGo").click();});
+$("#solMode").addEventListener("change",solDiffSync);
+$("#solShow").addEventListener("click",()=>{
+  const mode=$("#solMode").value,diff=$("#solDiff").value;
+  let num=parseInt($("#solNum").value,10);
+  if(mode.startsWith("d")){
+    const today=dailyInfo().dayN;
+    if(!num||num<1||num>today){toast("Day number must be 1 to "+today);return;}
+  }else if(!num||num<1||num>MAX_NUM){toast("Puzzle number must be 1 to 100,000");return;}
+  $("#solOut").innerHTML="<p class='statnote'>Dealing…</p>";
+  setTimeout(()=>{
+    const P=solDeal(mode,diff,num);
+    const name=solName(mode,P,num);
+    $("#solOut").innerHTML=
+      "<h2 class='vh1' style='font-size:19px;margin-bottom:8px'>"+name+"</h2>"+
+      "<div style='display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px'>"+
+      "<div><p class='statnote' style='margin:0 0 4px'>Puzzle</p>"+puzzleSVG(P,false)+"</div>"+
+      "<div><p class='statnote' style='margin:0 0 4px'>Solution</p>"+puzzleSVG(P,true)+"</div>"+
+      "</div>"+
+      "<div style='display:flex;gap:8px;flex-wrap:wrap;margin-top:12px'>"+
+      "<button class='tool' style='padding:9px 16px' id='solCopy'>Copy solution text</button>"+
+      "<button class='tool' style='padding:9px 16px' id='solPrint'>Print pair</button>"+
+      "</div>";
+    $("#solOut").querySelectorAll("svg").forEach(s=>{s.style.width="100%";s.style.height="auto";s.style.background="#fff";s.style.borderRadius="8px";});
+    $("#solCopy").addEventListener("click",async()=>{
+      const txt=name+"\n"+gridText(P,true)+cagesText(P);
+      try{await navigator.clipboard.writeText(txt);toast("Solution copied");}
+      catch(e){prompt("Copy:",txt);}
+    });
+    $("#solPrint").addEventListener("click",()=>{
+      $("#printSheet").innerHTML="<h2>"+name+"</h2><p>Puzzle</p>"+puzzleSVG(P,false)+"<p>Solution</p>"+puzzleSVG(P,true);
+      window.print();
+    });
+  },30);
+});
+$("#bulkGo").addEventListener("click",()=>{
+  const mode=$("#solMode").value,diff=$("#solDiff").value;
+  if(mode.startsWith("d")){toast("Bulk export works on numbered modes, not dailies");return;}
+  const from=parseInt($("#bulkFrom").value,10),to=parseInt($("#bulkTo").value,10);
+  const cap=mode==="killer"?100:500;
+  if(!from||!to||from<1||to<from||to>MAX_NUM){toast("Enter a valid range");return;}
+  if(to-from+1>cap){toast("Max "+cap+" per batch for this mode");return;}
+  let out="Zaney Sudoku bulk export — "+mode+" "+diff+" #"+from+"–#"+to+"\nGenerated "+new Date().toISOString().slice(0,10)+". Dots are empty cells.\n\n";
+  let n=from;
+  const prog=$("#bulkProg");
+  function chunk(){
+    const end=Math.min(n+4,to);
+    for(;n<=end;n++){
+      const P=solDeal(mode,diff,n);
+      out+="=== "+solName(mode,P,n)+" ===\nPuzzle:\n"+gridText(P,false)+cagesText(P)+"Solution:\n"+gridText(P,true)+"\n";
+    }
+    prog.textContent="Dealt "+(n-from)+" of "+(to-from+1)+"…";
+    if(n<=to)setTimeout(chunk,10);
+    else{
+      const blob=new Blob([out],{type:"text/plain"});
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(blob);
+      a.download="zaney-"+mode+"-"+diff+"-"+from+"-"+to+".txt";
+      a.click();
+      prog.textContent="Done — "+(to-from+1)+" puzzles exported.";
+    }
+  }
+  prog.textContent="Dealing…";setTimeout(chunk,10);
+});
+
 /* ---------- routing / theme / ads ---------- */
 function show(view){
-  ["Game","Browse","Help","Stats","Archive","Cowards"].forEach(v=>$("#view"+v).classList.toggle("on",v.toLowerCase()===view));
-  ["navDaily","navBrowse","navCow","navStats","navHelp"].forEach(id=>$("#"+id).classList.remove("on"));
+  ["Game","Browse","Help","Stats","Archive","Cowards","Variants","Solutions"].forEach(v=>$("#view"+v).classList.toggle("on",v.toLowerCase()===view));
+  ["navDaily","navBrowse","navCow","navVar","navStats","navHelp"].forEach(id=>$("#"+id).classList.remove("on"));
   if(view==="browse")$("#navBrowse").classList.add("on");
   else if(view==="cowards")$("#navCow").classList.add("on");
+  else if(view==="variants")$("#navVar").classList.add("on");
   else if(view==="help")$("#navHelp").classList.add("on");
   else if(view==="stats"||view==="archive")$("#navStats").classList.add("on");
   else if(G&&G.isDaily)$("#navDaily").classList.add("on");
   else if(G&&G.kind==="classic")$("#navCow").classList.add("on");
+  else if(G&&(G.kind==="x"||G.kind==="hyper"))$("#navVar").classList.add("on");
   window.scrollTo(0,0);
 }
 function route(){
   const h=location.hash;let m;
-  if((m=h.match(/^#\/p\/(easy|medium|hard|expert)\/(\d+)/))){
+  if((m=h.match(/^#\/p\/(easy|medium|hard|expert|nightmare)\/(\d+)/))){
     show("game");openPuzzle(Math.max(1,+m[2]),m[1],false);
   }else if((m=h.match(/^#\/c\/(cowards|easy|medium|hard)\/(\d+)/))){
     show("game");openPuzzle(Math.max(1,+m[2]),m[1],false,undefined,"classic");
   }else if((m=h.match(/^#\/x\/(easy|medium|hard|expert)\/(\d+)/))){
     show("game");openPuzzle(Math.max(1,+m[2]),m[1],false,undefined,"x");
+  }else if((m=h.match(/^#\/h\/(easy|medium|hard|expert)\/(\d+)/))){
+    show("game");openPuzzle(Math.max(1,+m[2]),m[1],false,undefined,"hyper");
+  }else if(h.startsWith("#/variants")){
+    buildX();buildHyper();show("variants");
+  }else if(h.startsWith("#/dc")){
+    const d=dailyInfo();
+    show("game");openPuzzle(700000+d.dayN,dailyClassicDiff(d.dayN),true,d.dayN,"classic");
+  }else if(h.startsWith("#/dx")){
+    const d=dailyInfo();
+    show("game");openPuzzle(800000+d.dayN,dailyXDiff(d.dayN),true,d.dayN,"x");
   }else if(h.startsWith("#/cowards")){
     buildCowards();$("#cResume").innerHTML=resumeHtml();show("cowards");
   }else if((m=h.match(/^#\/d\/(\d+)/))){
     const n=Math.min(Math.max(1,+m[1]),dailyInfo().dayN);
     show("game");openPuzzle(900000+n,dailyDiffFor(n),true,n);
   }else if(h.startsWith("#/browse")){
-    buildBrowse();buildX();$("#bResume").innerHTML=resumeHtml();show("browse");
+    buildBrowse();$("#bResume").innerHTML=resumeHtml();show("browse");
+  }else if(h.startsWith("#/solutions")){
+    initSolutions();show("solutions");
   }else if(h.startsWith("#/stats")){
     renderStats();show("stats");
   }else if(h.startsWith("#/archive")){
