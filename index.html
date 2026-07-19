@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Zaney Sudoku — 1.7 Million Puzzles: Killer, Classic, Sudoku X & Hyper</title>
 <meta name="description" content="1.7 million sudoku puzzles, every one verified to have exactly one solution: killer sudoku, classic sudoku (with a true beginner mode), Sudoku X and Hyper Sudoku. Three daily puzzles, pencil marks, dark mode, free.">
+<meta name="author" content="zaney.dev">
 <meta name="theme-color" content="#F6F5EF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#12141C" media="(prefers-color-scheme: dark)">
 <link rel="preload" href="fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
@@ -28,7 +29,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Zaney Sudoku — 1.7 million puzzles, zero dead ends">
 <meta name="twitter:image" content="https://zaneysudoku.com/og.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","description":"1.7 million verified sudoku puzzles: killer, classic, Sudoku X and Hyper, plus three daily challenges."},{"@type":"WebApplication","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","applicationCategory":"GameApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"},"description":"Free browser sudoku: killer, classic, Sudoku X and Hyper. Every puzzle machine-verified for a unique solution."}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","description":"1.7 million verified sudoku puzzles: killer, classic, Sudoku X and Hyper, plus three daily challenges.","creator":{"@type":"Organization","name":"zaney.dev","url":"https://zaney.dev"}},{"@type":"WebApplication","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","applicationCategory":"GameApplication","operatingSystem":"Any","creator":{"@type":"Organization","name":"zaney.dev","url":"https://zaney.dev"},"offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"},"description":"Free browser sudoku: killer, classic, Sudoku X and Hyper. Every puzzle machine-verified for a unique solution."}]}</script>
 <script>
 /* ===================== CONFIG ===================== */
 /* Google AdSense: after your site is approved, paste your IDs below.
@@ -78,6 +79,30 @@ try{const t=localStorage.getItem("zs_theme");if(t)document.documentElement.datas
   --cage:#AEB3C6;
   --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.3);
 }
+[data-theme="newsprint"]{
+  --paper:#F7F5EE; --surface:#FFFFFF; --ink:#14120E; --muted:#6E6A5E;
+  --line:#DAD5C6; --heavy:#14120E; --violet:#B33A3A; --violet-ink:#952F2F;
+  --hl:#F2D66B; --err:#C22B2B; --cage:#4A463C;
+  --shadow:0 1px 2px rgba(20,18,14,.08), 0 8px 24px rgba(20,18,14,.06);
+}
+[data-theme="seaside"]{
+  --paper:#EDF6F4; --surface:#FFFFFF; --ink:#143838; --muted:#5E7A78;
+  --line:#CFE3DF; --heavy:#143838; --violet:#0E8A7B; --violet-ink:#0B6E62;
+  --hl:#FFC94D; --err:#E05A4E; --cage:#3E6360;
+  --shadow:0 1px 2px rgba(14,58,56,.08), 0 8px 24px rgba(14,58,56,.07);
+}
+[data-theme="noir"]{
+  --paper:#0A0A0D; --surface:#141419; --ink:#F2F2F5; --muted:#8E8E99;
+  --line:#26262E; --heavy:#C9C9D4; --violet:#E3B341; --violet-ink:#F0C55C;
+  --hl:#E3B341; --err:#FF5C64; --cage:#A9A9B8;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.5);
+}
+[data-theme="aquarium"]{
+  --paper:#0C1F2E; --surface:#12293C; --ink:#E7F3FA; --muted:#8FB1C4;
+  --line:#1E3A50; --heavy:#A9CFE3; --violet:#35C4E8; --violet-ink:#5ED4F2;
+  --hl:#FFD23F; --err:#FF6B72; --cage:#9FC6DB;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.35);
+}
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
 body{
@@ -125,6 +150,18 @@ nav a.on{border-color:var(--ink)}
   font-size:17px;padding:6px 10px;border-radius:10px;line-height:1;
 }
 #themeBtn:hover{background:var(--surface)}
+.thememenu{
+  position:absolute;top:100%;right:0;margin-top:6px;z-index:40;display:none;
+  background:var(--surface);border-radius:12px;box-shadow:var(--shadow);
+  padding:8px;min-width:160px;border:1px solid var(--line);
+}
+.thememenu.on{display:block}
+.thememenu button{
+  display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  padding:8px 10px;border-radius:8px;font-size:14px;font-weight:600;
+}
+.thememenu button:hover{background:var(--paper)}
+.thememenu .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);flex:none}
 
 /* ---------- layout ---------- */
 main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw,32px) 40px}
@@ -384,7 +421,17 @@ footer a{color:var(--muted)}
     <a href="#/variants" id="navVar">Variants</a>
     <a href="#/stats" id="navStats">Stats</a>
     <a href="#/help" id="navHelp">How to play</a>
-    <button id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">◐</button>
+    <span style="position:relative">
+      <button id="themeBtn" title="Site style" aria-label="Choose site style">◐</button>
+      <div class="thememenu" id="themeMenu">
+        <button data-t="light"><span class="dot" style="background:#F6F5EF"></span>Paper</button>
+        <button data-t="dark"><span class="dot" style="background:#1B1E2A"></span>Midnight</button>
+        <button data-t="newsprint"><span class="dot" style="background:linear-gradient(135deg,#F7F5EE 50%,#B33A3A 50%)"></span>Newsprint</button>
+        <button data-t="seaside"><span class="dot" style="background:linear-gradient(135deg,#EDF6F4 50%,#0E8A7B 50%)"></span>Seaside</button>
+        <button data-t="noir"><span class="dot" style="background:linear-gradient(135deg,#0A0A0D 50%,#E3B341 50%)"></span>Noir</button>
+        <button data-t="aquarium"><span class="dot" style="background:linear-gradient(135deg,#0C1F2E 50%,#35C4E8 50%)"></span>Aquarium</button>
+      </div>
+    </span>
   </nav>
 </header>
 
@@ -525,14 +572,14 @@ footer a{color:var(--muted)}
     <div class="stats-col">
       <h1 class="vh1">Solutions</h1>
       <div id="solGate">
-        <p class="statnote">This corner is for book production and the truly defeated. Password required.</p>
+        <p class="statnote">This corner is for the truly defeated. Password required.</p>
         <div style="display:flex;gap:8px;max-width:340px">
           <input id="solPw" type="password" placeholder="Password" style="flex:1;min-width:0;background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:16px">
           <button class="tool" style="padding:10px 18px" id="solGo">Enter</button>
         </div>
       </div>
       <div id="solTool" style="display:none">
-        <p class="statnote">Look up any puzzle's full solution. Print pairs nicely for book layouts.</p>
+        <p class="statnote">Look up any puzzle's full solution.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
           <select id="solMode" style="background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 10px;font-size:15px">
             <option value="killer">Killer</option>
@@ -548,7 +595,7 @@ footer a{color:var(--muted)}
           <button class="tool" style="padding:10px 18px" id="solShow">Show</button>
         </div>
         <div id="solOut"></div>
-        <h2 class="vh1" style="font-size:20px;margin:30px 0 6px">Bulk export for books</h2>
+        <h2 class="vh1" style="font-size:20px;margin:30px 0 6px">Bulk export</h2>
         <p class="statnote">Exports puzzles + solutions as a text file. Max 500 per batch (100 for killer — those take a second each to deal).</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <input id="bulkFrom" type="number" min="1" placeholder="From #" style="width:110px;background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:16px">
@@ -599,7 +646,8 @@ footer a{color:var(--muted)}
   <a href="classic-sudoku.html">classic</a> ·
   <a href="about.html">about</a> ·
   <a href="terms.html">terms</a> ·
-  <a href="privacy.html">privacy</a> · <a href="#/solutions">solutions</a> · made in London
+  <a href="privacy.html">privacy</a> · <a href="#/solutions">solutions</a> · made in London ·
+  a game by <a href="https://zaney.dev" rel="me">zaney.dev</a>
 </footer>
 
 <div class="modal" id="winModal">
@@ -2087,9 +2135,17 @@ function route(){
 }
 window.addEventListener("hashchange",route);
 
-$("#themeBtn").addEventListener("click",()=>{
-  const cur=document.documentElement.dataset.theme==="dark"?"light":"dark";
-  document.documentElement.dataset.theme=cur;store.set("zs_theme",cur);
+$("#themeBtn").addEventListener("click",e=>{
+  e.stopPropagation();
+  $("#themeMenu").classList.toggle("on");
+});
+document.addEventListener("click",()=>$("#themeMenu").classList.remove("on"));
+document.querySelectorAll("#themeMenu button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.documentElement.dataset.theme=b.dataset.t;
+    store.set("zs_theme",b.dataset.t);
+    $("#themeMenu").classList.remove("on");
+  });
 });
 
 if(location.search.indexOf("thanks=1")>=0){

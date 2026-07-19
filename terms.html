@@ -39,6 +39,18 @@
 [data-theme="dark"]{--paper:#12141C;--surface:#1B1E2A;--ink:#ECEDF3;--muted:#9BA0B2;
 --line:#2C303F;--violet:#8B7DFF;--hl:#FFD23F;
 --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);}
+[data-theme="newsprint"]{--paper:#F7F5EE;--surface:#FFFFFF;--ink:#14120E;--muted:#6E6A5E;
+--line:#DAD5C6;--violet:#B33A3A;--hl:#F2D66B;
+--shadow:0 1px 2px rgba(20,18,14,.08),0 8px 24px rgba(20,18,14,.06);}
+[data-theme="seaside"]{--paper:#EDF6F4;--surface:#FFFFFF;--ink:#143838;--muted:#5E7A78;
+--line:#CFE3DF;--violet:#0E8A7B;--hl:#FFC94D;
+--shadow:0 1px 2px rgba(14,58,56,.08),0 8px 24px rgba(14,58,56,.07);}
+[data-theme="noir"]{--paper:#0A0A0D;--surface:#141419;--ink:#F2F2F5;--muted:#8E8E99;
+--line:#26262E;--violet:#E3B341;--hl:#E3B341;
+--shadow:0 1px 2px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.5);}
+[data-theme="aquarium"]{--paper:#0C1F2E;--surface:#12293C;--ink:#E7F3FA;--muted:#8FB1C4;
+--line:#1E3A50;--violet:#35C4E8;--hl:#FFD23F;
+--shadow:0 1px 2px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.35);}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--paper);
 color:var(--ink);line-height:1.6;min-height:100dvh;display:flex;flex-direction:column}
@@ -134,7 +146,8 @@ footer a{color:var(--muted)}
   <a href="classic-sudoku.html">classic</a> &middot;
   <a href="about.html">about</a> &middot;
   <a href="terms.html">terms</a> &middot;
-  <a href="privacy.html">privacy</a>
+  <a href="privacy.html">privacy</a> &middot;
+  a game by <a href="https://zaney.dev" rel="me">zaney.dev</a>
 </footer>
 <script>
 document.getElementById("themeBtn").addEventListener("click",()=>{
