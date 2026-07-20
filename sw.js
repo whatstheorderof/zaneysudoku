@@ -1,4 +1,4 @@
-const CACHE = "zaney-v6";
+const CACHE = "zaney-v7";
 const SHELL = [
   "./", "./index.html",
   "./killer-sudoku-rules.html", "./killer-sudoku-combinations.html",

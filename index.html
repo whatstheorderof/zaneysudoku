@@ -596,11 +596,12 @@ footer a{color:var(--muted)}
         </div>
         <div id="solOut"></div>
         <h2 class="vh1" style="font-size:20px;margin:30px 0 6px">Bulk export</h2>
-        <p class="statnote">Exports puzzles + solutions as a text file. Max 500 per batch (100 for killer — those take a second each to deal).</p>
+        <p class="statnote">Uses the selector above. PDF gives print-ready pages: two puzzles per page, then a solutions section at the back. Max 500 per batch (100 for killer — those take a second each to deal).</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <input id="bulkFrom" type="number" min="1" placeholder="From #" style="width:110px;background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:16px">
           <input id="bulkTo" type="number" min="1" placeholder="To #" style="width:110px;background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:16px">
-          <button class="tool" style="padding:10px 18px" id="bulkGo">Export range</button>
+          <button class="tool on" style="padding:10px 18px" id="bulkGo">Export PDF</button>
+          <button class="tool" style="padding:10px 18px" id="bulkTxt">Text file</button>
         </div>
         <p class="statnote" id="bulkProg"></p>
       </div>
@@ -2050,34 +2051,165 @@ $("#solShow").addEventListener("click",()=>{
     });
   },30);
 });
-$("#bulkGo").addEventListener("click",()=>{
+function bulkRange(){
   const mode=$("#solMode").value,diff=$("#solDiff").value;
-  if(mode.startsWith("d")){toast("Bulk export works on numbered modes, not dailies");return;}
   const from=parseInt($("#bulkFrom").value,10),to=parseInt($("#bulkTo").value,10);
-  const cap=mode==="killer"?100:500;
-  if(!from||!to||from<1||to<from||to>MAX_NUM){toast("Enter a valid range");return;}
-  if(to-from+1>cap){toast("Max "+cap+" per batch for this mode");return;}
-  let out="Zaney Sudoku bulk export — "+mode+" "+diff+" #"+from+"–#"+to+"\nGenerated "+new Date().toISOString().slice(0,10)+". Dots are empty cells.\n\n";
-  let n=from;
-  const prog=$("#bulkProg");
+  const daily=mode.startsWith("d");
+  const max=daily?dailyInfo().dayN:MAX_NUM;
+  const cap=(mode==="killer"||mode==="dkiller")?100:500;
+  if(!from||!to||from<1||to<from||to>max){toast(daily?"Day range must be 1 to "+max:"Enter a valid range");return null;}
+  if(to-from+1>cap){toast("Max "+cap+" per batch for this mode");return null;}
+  return {mode,diff,from,to};
+}
+function dealRange(R,onDone){
+  const prog=$("#bulkProg"),arr=[];
+  let n=R.from;
   function chunk(){
-    const end=Math.min(n+4,to);
+    const end=Math.min(n+4,R.to);
     for(;n<=end;n++){
-      const P=solDeal(mode,diff,n);
-      out+="=== "+solName(mode,P,n)+" ===\nPuzzle:\n"+gridText(P,false)+cagesText(P)+"Solution:\n"+gridText(P,true)+"\n";
+      const P=solDeal(R.mode,R.diff,n);
+      arr.push({P,name:solName(R.mode,P,n)});
     }
-    prog.textContent="Dealt "+(n-from)+" of "+(to-from+1)+"…";
-    if(n<=to)setTimeout(chunk,10);
-    else{
-      const blob=new Blob([out],{type:"text/plain"});
-      const a=document.createElement("a");
-      a.href=URL.createObjectURL(blob);
-      a.download="zaney-"+mode+"-"+diff+"-"+from+"-"+to+".txt";
-      a.click();
-      prog.textContent="Done — "+(to-from+1)+" puzzles exported.";
-    }
+    prog.textContent="Dealt "+(n-R.from)+" of "+(R.to-R.from+1)+"…";
+    if(n<=R.to)setTimeout(chunk,10);
+    else onDone(arr);
   }
   prog.textContent="Dealing…";setTimeout(chunk,10);
+}
+let jspdfP=null;
+function loadJsPDF(){
+  if(window.jspdf)return Promise.resolve();
+  if(jspdfP)return jspdfP;
+  jspdfP=new Promise((res,rej)=>{
+    const s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    s.onload=res;s.onerror=()=>{jspdfP=null;rej(new Error("cdn"));};
+    document.head.appendChild(s);
+  });
+  return jspdfP;
+}
+function pdfGrid(doc,P,x,y,s,withSol,full){
+  const cell=s/9;
+  if(full&&P.kind==="x"){
+    doc.setFillColor(233,233,233);
+    for(let i=0;i<9;i++){
+      doc.rect(x+i*cell,y+i*cell,cell,cell,"F");
+      if(8-i!==i)doc.rect(x+(8-i)*cell,y+i*cell,cell,cell,"F");
+    }
+  }
+  if(full&&P.kind==="hyper"){
+    doc.setFillColor(233,233,233);
+    for(const rc of [[1,1],[1,5],[5,1],[5,5]])
+      doc.rect(x+rc[1]*cell,y+rc[0]*cell,3*cell,3*cell,"F");
+  }
+  doc.setDrawColor(0);
+  for(let i=0;i<=9;i++){
+    doc.setLineWidth(i%3===0?0.55:0.16);
+    doc.line(x+i*cell,y,x+i*cell,y+s);
+    doc.line(x,y+i*cell,x+s,y+i*cell);
+  }
+  if(full&&P.cages&&P.cages.length){
+    const inset=cell*0.08;
+    doc.setDrawColor(90);doc.setLineWidth(0.22);
+    doc.setLineDashPattern([1.0,0.8],0);
+    const diffAt=(i,j)=>j<0||P.cageOf[i]!==P.cageOf[j];
+    for(let i=0;i<81;i++){
+      const r=(i/9)|0,c=i%9,cx=x+c*cell,cy=y+r*cell;
+      const up=diffAt(i,r>0?i-9:-1),dn=diffAt(i,r<8?i+9:-1),
+            lf=diffAt(i,c>0?i-1:-1),rt=diffAt(i,c<8?i+1:-1);
+      if(up)doc.line(cx+(lf?inset:0),cy+inset,cx+cell-(rt?inset:0),cy+inset);
+      if(dn)doc.line(cx+(lf?inset:0),cy+cell-inset,cx+cell-(rt?inset:0),cy+cell-inset);
+      if(lf)doc.line(cx+inset,cy+(up?inset:0),cx+inset,cy+cell-(dn?inset:0));
+      if(rt)doc.line(cx+cell-inset,cy+(up?inset:0),cx+cell-inset,cy+cell-(dn?inset:0));
+    }
+    doc.setLineDashPattern([],0);
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(cell*0.30*2.835);
+    doc.setTextColor(60,60,60);
+    for(const g of P.cages){
+      const a=g.cells[0],r=(a/9)|0,c=a%9;
+      const tx=x+c*cell+inset*1.4,ty=y+r*cell+inset*1.2;
+      doc.setFillColor(255,255,255);
+      doc.rect(tx-cell*0.03,ty-cell*0.01,String(g.sum).length*cell*0.19+cell*0.08,cell*0.30,"F");
+      doc.text(String(g.sum),tx,ty+cell*0.15,{baseline:"middle"});
+    }
+    doc.setDrawColor(0);
+  }
+  for(let i=0;i<81;i++){
+    const r=(i/9)|0,c=i%9;
+    if(P.given[i]){
+      doc.setTextColor(0,0,0);
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(cell*0.60*2.835);
+      doc.text(String(P.sol[i]),x+c*cell+cell/2,y+r*cell+cell*0.56,{align:"center",baseline:"middle"});
+    }else if(withSol){
+      doc.setTextColor(80,80,80);
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(cell*0.56*2.835);
+      doc.text(String(P.sol[i]),x+c*cell+cell/2,y+r*cell+cell*0.56,{align:"center",baseline:"middle"});
+    }
+  }
+  doc.setTextColor(0,0,0);
+  doc.setFont("helvetica","normal");
+}
+function buildPdf(arr,R){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:"mm",format:"a4"});
+  // puzzles: two per page
+  arr.forEach((item,i)=>{
+    const slot=i%2;
+    if(i>0&&slot===0)doc.addPage();
+    const y0=slot===0?14:156;
+    doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(0,0,0);
+    doc.text(item.name,105,y0,{align:"center"});
+    pdfGrid(doc,item.P,45,y0+5,120,false,true);
+  });
+  // solutions: six per page
+  doc.addPage();
+  doc.setFont("helvetica","bold");doc.setFontSize(20);
+  doc.text("Solutions",105,20,{align:"center"});
+  arr.forEach((item,i)=>{
+    const slot=i%6;
+    if(i>0&&slot===0)doc.addPage();
+    const col=slot%2,row=(slot/2)|0;
+    const x=col===0?25:115,y=(i<6?30:16)+row*90;
+    doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.setTextColor(0,0,0);
+    doc.text(item.name,x+35,y,{align:"center"});
+    pdfGrid(doc,item.P,x,y+3,70,true,false);
+  });
+  // page numbers
+  const pages=doc.getNumberOfPages();
+  doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(120,120,120);
+  for(let p=1;p<=pages;p++){doc.setPage(p);doc.text(String(p),105,291,{align:"center"});}
+  doc.save("zaney-"+R.mode+"-"+(R.diff||"daily")+"-"+R.from+"-"+R.to+".pdf");
+}
+$("#bulkGo").addEventListener("click",()=>{
+  const R=bulkRange();if(!R)return;
+  const prog=$("#bulkProg");
+  prog.textContent="Loading PDF engine…";
+  loadJsPDF().then(()=>{
+    dealRange(R,arr=>{
+      prog.textContent="Building PDF…";
+      setTimeout(()=>{
+        buildPdf(arr,R);
+        prog.textContent="Done — "+arr.length+" puzzles + solutions in one PDF.";
+      },20);
+    });
+  }).catch(()=>{prog.textContent="";toast("Couldn't load the PDF engine — check your connection");});
+});
+$("#bulkTxt").addEventListener("click",()=>{
+  const R=bulkRange();if(!R)return;
+  dealRange(R,arr=>{
+    let out="Zaney Sudoku bulk export — "+R.mode+" "+(R.diff||"daily")+" #"+R.from+"–#"+R.to+"\nGenerated "+new Date().toISOString().slice(0,10)+". Dots are empty cells.\n\n";
+    for(const item of arr)
+      out+="=== "+item.name+" ===\nPuzzle:\n"+gridText(item.P,false)+cagesText(item.P)+"Solution:\n"+gridText(item.P,true)+"\n";
+    const blob=new Blob([out],{type:"text/plain"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="zaney-"+R.mode+"-"+(R.diff||"daily")+"-"+R.from+"-"+R.to+".txt";
+    a.click();
+    $("#bulkProg").textContent="Done — "+arr.length+" puzzles exported.";
+  });
 });
 
 /* ---------- routing / theme / ads ---------- */
