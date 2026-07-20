@@ -116,6 +116,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 button,a,.cell{-webkit-tap-highlight-color:transparent}
 input{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--violet);outline-offset:2px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
 /* ---------- header ---------- */
@@ -170,7 +171,7 @@ main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw
 .ad-slot{
   display:none;margin:14px auto;max-width:728px;min-height:0;text-align:center;overflow:hidden;
 }
-.ad-slot.live{display:block}
+.ad-slot.live{display:block;min-height:100px}
 
 /* ---------- game view ---------- */
 .game-col{max-width:560px;margin:0 auto}
@@ -438,6 +439,7 @@ footer a{color:var(--muted)}
 <div class="ad-slot" id="adTop"><ins class="adsbygoogle" style="display:block" data-ad-format="auto" data-full-width-responsive="true"></ins></div>
 
 <main>
+  <h1 class="sr-only">Zaney Sudoku — free killer sudoku, classic sudoku, Sudoku X and Hyper Sudoku puzzles with daily challenges</h1>
   <!-- ================= GAME ================= -->
   <section class="view" id="viewGame">
     <div class="game-col">
@@ -1969,6 +1971,28 @@ function resumeHtml(){
 
 /* ---------- solutions (gated) ---------- */
 const SOL_DIFFS={killer:DIFFS,classic:CLASSIC_DIFFS,x:X_DIFFS,hyper:H_DIFFS,dkiller:[],dclassic:[],dx:[]};
+function solTarget(mode,diff,num){
+  if(mode==="dkiller")return {kind:"killer",num:900000+num,diff:dailyDiffFor(num)};
+  if(mode==="dclassic")return {kind:"classic",num:700000+num,diff:dailyClassicDiff(num)};
+  if(mode==="dx")return {kind:"x",num:800000+num,diff:dailyXDiff(num)};
+  return {kind:mode,num,diff};
+}
+let solWorker=null;
+function solDealAsync(mode,diff,num){
+  const t=solTarget(mode,diff,num);
+  return new Promise(res=>{
+    if(solWorker===null)solWorker=makeWorker()||false;
+    if(!solWorker){setTimeout(()=>res(solDeal(mode,diff,num)),0);return;}
+    const h=e=>{
+      solWorker.removeEventListener("message",h);
+      const d=e.data;
+      res({num:d.num,diff:d.diff,kind:d.kind,sol:Uint8Array.from(d.sol),cages:d.cages,
+           cageOf:Int16Array.from(d.cageOf),given:Uint8Array.from(d.given)});
+    };
+    solWorker.addEventListener("message",h);
+    solWorker.postMessage(t);
+  });
+}
 function solDeal(mode,diff,num){
   if(mode==="killer")return Object.assign(dealPuzzle(num,diff),{kind:"killer"});
   if(mode==="classic")return dealClassic(num,diff);
@@ -2026,8 +2050,7 @@ $("#solShow").addEventListener("click",()=>{
     if(!num||num<1||num>today){toast("Day number must be 1 to "+today);return;}
   }else if(!num||num<1||num>MAX_NUM){toast("Puzzle number must be 1 to 100,000");return;}
   $("#solOut").innerHTML="<p class='statnote'>Dealing…</p>";
-  setTimeout(()=>{
-    const P=solDeal(mode,diff,num);
+  solDealAsync(mode,diff,num).then(P=>{
     const name=solName(mode,P,num);
     $("#solOut").innerHTML=
       "<h2 class='vh1' style='font-size:19px;margin-bottom:8px'>"+name+"</h2>"+
@@ -2049,7 +2072,7 @@ $("#solShow").addEventListener("click",()=>{
       $("#printSheet").innerHTML="<h2>"+name+"</h2><p>Puzzle</p>"+puzzleSVG(P,false)+"<p>Solution</p>"+puzzleSVG(P,true);
       window.print();
     });
-  },30);
+  });
 });
 function bulkRange(){
   const mode=$("#solMode").value,diff=$("#solDiff").value;
@@ -2064,17 +2087,16 @@ function bulkRange(){
 function dealRange(R,onDone){
   const prog=$("#bulkProg"),arr=[];
   let n=R.from;
-  function chunk(){
-    const end=Math.min(n+4,R.to);
-    for(;n<=end;n++){
-      const P=solDeal(R.mode,R.diff,n);
+  function next(){
+    if(n>R.to){onDone(arr);return;}
+    solDealAsync(R.mode,R.diff,n).then(P=>{
       arr.push({P,name:solName(R.mode,P,n)});
-    }
-    prog.textContent="Dealt "+(n-R.from)+" of "+(R.to-R.from+1)+"…";
-    if(n<=R.to)setTimeout(chunk,10);
-    else onDone(arr);
+      n++;
+      prog.textContent="Dealt "+(n-R.from)+" of "+(R.to-R.from+1)+"…";
+      next();
+    });
   }
-  prog.textContent="Dealing…";setTimeout(chunk,10);
+  prog.textContent="Dealing…";next();
 }
 let jspdfP=null;
 function loadJsPDF(){
@@ -2152,36 +2174,51 @@ function pdfGrid(doc,P,x,y,s,withSol,full){
   doc.setTextColor(0,0,0);
   doc.setFont("helvetica","normal");
 }
-function buildPdf(arr,R){
+function buildPdf(arr,R,onDone){
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:"mm",format:"a4"});
-  // puzzles: two per page
-  arr.forEach((item,i)=>{
-    const slot=i%2;
-    if(i>0&&slot===0)doc.addPage();
-    const y0=slot===0?14:156;
-    doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(0,0,0);
-    doc.text(item.name,105,y0,{align:"center"});
-    pdfGrid(doc,item.P,45,y0+5,120,false,true);
-  });
-  // solutions: six per page
-  doc.addPage();
-  doc.setFont("helvetica","bold");doc.setFontSize(20);
-  doc.text("Solutions",105,20,{align:"center"});
-  arr.forEach((item,i)=>{
-    const slot=i%6;
-    if(i>0&&slot===0)doc.addPage();
-    const col=slot%2,row=(slot/2)|0;
-    const x=col===0?25:115,y=(i<6?30:16)+row*90;
-    doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.setTextColor(0,0,0);
-    doc.text(item.name,x+35,y,{align:"center"});
-    pdfGrid(doc,item.P,x,y+3,70,true,false);
-  });
-  // page numbers
-  const pages=doc.getNumberOfPages();
-  doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(120,120,120);
-  for(let p=1;p<=pages;p++){doc.setPage(p);doc.text(String(p),105,291,{align:"center"});}
-  doc.save("zaney-"+R.mode+"-"+(R.diff||"daily")+"-"+R.from+"-"+R.to+".pdf");
+  const prog=$("#bulkProg");
+  let i=0;
+  function puzzles(){
+    const end=Math.min(i+8,arr.length);
+    for(;i<end;i++){
+      const slot=i%2;
+      if(i>0&&slot===0)doc.addPage();
+      const y0=slot===0?14:156;
+      doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(0,0,0);
+      doc.text(arr[i].name,105,y0,{align:"center"});
+      pdfGrid(doc,arr[i].P,45,y0+5,120,false,true);
+    }
+    if(i<arr.length){prog.textContent="Building PDF — puzzles "+i+"/"+arr.length+"…";setTimeout(puzzles,0);}
+    else{
+      i=0;
+      doc.addPage();
+      doc.setFont("helvetica","bold");doc.setFontSize(20);
+      doc.text("Solutions",105,20,{align:"center"});
+      setTimeout(sols,0);
+    }
+  }
+  function sols(){
+    const end=Math.min(i+12,arr.length);
+    for(;i<end;i++){
+      const slot=i%6;
+      if(i>0&&slot===0)doc.addPage();
+      const col=slot%2,row=(slot/2)|0;
+      const x=col===0?25:115,y=(i<6?30:16)+row*90;
+      doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.setTextColor(0,0,0);
+      doc.text(arr[i].name,x+35,y,{align:"center"});
+      pdfGrid(doc,arr[i].P,x,y+3,70,true,false);
+    }
+    if(i<arr.length){prog.textContent="Building PDF — solutions "+i+"/"+arr.length+"…";setTimeout(sols,0);}
+    else{
+      const pages=doc.getNumberOfPages();
+      doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(120,120,120);
+      for(let p=1;p<=pages;p++){doc.setPage(p);doc.text(String(p),105,291,{align:"center"});}
+      doc.save("zaney-"+R.mode+"-"+(R.diff||"daily")+"-"+R.from+"-"+R.to+".pdf");
+      onDone();
+    }
+  }
+  puzzles();
 }
 $("#bulkGo").addEventListener("click",()=>{
   const R=bulkRange();if(!R)return;
@@ -2189,11 +2226,9 @@ $("#bulkGo").addEventListener("click",()=>{
   prog.textContent="Loading PDF engine…";
   loadJsPDF().then(()=>{
     dealRange(R,arr=>{
-      prog.textContent="Building PDF…";
-      setTimeout(()=>{
-        buildPdf(arr,R);
+      buildPdf(arr,R,()=>{
         prog.textContent="Done — "+arr.length+" puzzles + solutions in one PDF.";
-      },20);
+      });
     });
   }).catch(()=>{prog.textContent="";toast("Couldn't load the PDF engine — check your connection");});
 });
