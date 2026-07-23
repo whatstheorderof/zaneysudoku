@@ -215,13 +215,17 @@ main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw
 .cell.given .v{color:var(--ink);font-weight:800}
 .cell.err .v{color:var(--err)}
 .cell .notes{
-  position:absolute;inset:12% 4% 3% 4%;z-index:1;
+  position:absolute;inset:0;z-index:1;
   display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
-  font-size:clamp(8px,2vw,11px);font-weight:600;color:var(--muted);
-  line-height:1;overflow:hidden;
+  font-size:clamp(8px,2.1vw,12px);font-weight:600;color:var(--muted);
+  line-height:1;padding:1px;
 }
-.cell .notes span{display:flex;align-items:center;justify-content:center;visibility:hidden;min-height:0;min-width:0}
-.cell.anchor .notes{inset:27% 4% 3% 4%;font-size:clamp(7px,1.8vw,10px)}
+.cell .notes span{
+  display:flex;align-items:center;justify-content:center;
+  visibility:hidden;min-height:0;min-width:0;overflow:hidden;
+}
+/* anchor cells carry the cage-sum label top-left; nudge that one note cell clear of it */
+.cell.anchor .notes span:first-child{align-items:flex-end;justify-content:flex-end;padding-bottom:1px}
 .cell .notes span.on{visibility:visible}
 .cell.flash{animation:flash .5s ease 3}
 @keyframes flash{50%{background:color-mix(in srgb,var(--err) 35%,transparent)}}
@@ -440,6 +444,13 @@ footer a{color:var(--muted)}
 
 <main>
   <h1 class="sr-only">Zaney Sudoku — free killer sudoku, classic sudoku, Sudoku X and Hyper Sudoku puzzles with daily challenges</h1>
+  <noscript>
+    <div style="max-width:640px;margin:20px auto;padding:0 16px;line-height:1.6">
+      <h2>Free online sudoku: killer, classic, Sudoku X and Hyper</h2>
+      <p>Zaney Sudoku is a free browser sudoku site with over 1.7 million puzzles across four games — killer sudoku, classic sudoku, Sudoku X and Hyper Sudoku — every one machine-verified to have exactly one solution. Three daily puzzles, permanent shareable puzzle numbers, pencil marks, dark mode, and no sign-up. This game needs JavaScript to play.</p>
+      <p><a href="killer-sudoku-rules.html">How to play killer sudoku</a> · <a href="classic-sudoku.html">Classic sudoku</a> · <a href="sudoku-x.html">Sudoku X</a> · <a href="hyper-sudoku.html">Hyper Sudoku</a> · <a href="daily-sudoku.html">Daily sudoku</a></p>
+    </div>
+  </noscript>
   <!-- ================= GAME ================= -->
   <section class="view" id="viewGame">
     <div class="game-col">
@@ -502,7 +513,7 @@ footer a{color:var(--muted)}
   <section class="view" id="viewBrowse">
     <div class="browse-head">
       <h1>1.7 million puzzles.<br><em>Zero dead ends.</em></h1>
-      <p>Killer sudoku is the main event: 100,000 puzzles per difficulty — now including Nightmare — each verified to have exactly one solution before it reaches your screen. <a href="#/variants" style="color:var(--violet)">Sudoku X, Hyper</a> and <a href="#/cowards" style="color:var(--violet)">classic</a> live here too.</p>
+      <p>Zaney Sudoku is a free online sudoku site with over 1.7 million puzzles across four games — <strong>killer sudoku</strong>, <strong>classic sudoku</strong>, <strong>Sudoku X</strong> and <strong>Hyper Sudoku</strong> — every one machine-verified to have exactly one solution before it reaches your screen. Killer is the main event, with five difficulties from Easy up to Nightmare. There are three <a href="#/daily" style="color:var(--violet)">daily puzzles</a>, and <a href="#/cowards" style="color:var(--violet)">classic sudoku</a> includes a true beginner mode that teaches the game one step at a time.</p>
     </div>
     <div class="diff-grid" id="diffGrid"></div>
     <p class="browse-note" id="bResume" style="margin-top:14px"></p>
