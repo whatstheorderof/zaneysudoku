@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Zaney Sudoku — 1.7 Million Puzzles: Killer, Classic, Sudoku X & Hyper</title>
-<meta name="description" content="1.7 million sudoku puzzles, every one verified to have exactly one solution: killer sudoku, classic sudoku (with a true beginner mode), Sudoku X and Hyper Sudoku. Three daily puzzles, pencil marks, dark mode, free.">
+<meta name="description" content="1.7 million sudoku puzzles, every one verified to have exactly one solution: killer sudoku, classic sudoku (with a true beginner mode), Sudoku X and Hyper Sudoku. Four daily puzzles, pencil marks, dark mode, free.">
 <meta name="author" content="zaney.dev">
 <meta name="theme-color" content="#F6F5EF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#12141C" media="(prefers-color-scheme: dark)">
@@ -29,7 +29,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Zaney Sudoku — 1.7 million puzzles, zero dead ends">
 <meta name="twitter:image" content="https://zaneysudoku.com/og.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","description":"1.7 million verified sudoku puzzles: killer, classic, Sudoku X and Hyper, plus three daily challenges.","creator":{"@type":"Organization","name":"zaney.dev","url":"https://zaney.dev"}},{"@type":"WebApplication","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","applicationCategory":"GameApplication","operatingSystem":"Any","creator":{"@type":"Organization","name":"zaney.dev","url":"https://zaney.dev"},"offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"},"description":"Free browser sudoku: killer, classic, Sudoku X and Hyper. Every puzzle machine-verified for a unique solution."}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","description":"1.7 million verified sudoku puzzles: killer, classic, Sudoku X and Hyper, plus four daily challenges.","creator":{"@type":"Organization","name":"zaney.dev","url":"https://zaney.dev"}},{"@type":"WebApplication","name":"Zaney Sudoku","url":"https://zaneysudoku.com/","applicationCategory":"GameApplication","operatingSystem":"Any","creator":{"@type":"Organization","name":"zaney.dev","url":"https://zaney.dev"},"offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"},"description":"Free browser sudoku: killer, classic, Sudoku X and Hyper. Every puzzle machine-verified for a unique solution."}]}</script>
 <script>
 /* ===================== CONFIG ===================== */
 /* Google AdSense: after your site is approved, paste your IDs below.
@@ -351,6 +351,16 @@ footer a{color:var(--muted)}
 @keyframes pulse{0%,100%{box-shadow:none}50%{box-shadow:inset 0 0 0 3px var(--violet)}}
 .combostrip{min-height:20px;margin:10px auto 0;width:min(94vw,540px);text-align:center;font-size:13px;color:var(--muted);line-height:1.5}
 .combostrip b{color:var(--ink)}
+.modehint{
+  max-width:540px;margin:0 auto 12px;padding:9px 14px;
+  background:color-mix(in srgb,var(--violet) 9%,transparent);
+  border-radius:11px;font-size:13px;color:var(--ink);line-height:1.45;
+  display:none;align-items:flex-start;gap:8px;
+}
+.modehint.on{display:flex}
+.modehint b{color:var(--violet)}
+.modehint .x{margin-left:auto;flex:none;color:var(--muted);font-weight:700;cursor:pointer;padding:0 2px}
+.modehint .x:hover{color:var(--ink)}
 .palette{display:none;width:min(94vw,540px);margin:8px auto 0;grid-template-columns:repeat(5,1fr);gap:6px}
 .palette.on{display:grid}
 .sw{height:36px;border-radius:9px;box-shadow:var(--shadow);border:2.5px solid transparent;font-size:12px;font-weight:600;color:var(--muted)}
@@ -447,7 +457,7 @@ footer a{color:var(--muted)}
   <noscript>
     <div style="max-width:640px;margin:20px auto;padding:0 16px;line-height:1.6">
       <h2>Free online sudoku: killer, classic, Sudoku X and Hyper</h2>
-      <p>Zaney Sudoku is a free browser sudoku site with over 1.7 million puzzles across four games — killer sudoku, classic sudoku, Sudoku X and Hyper Sudoku — every one machine-verified to have exactly one solution. Three daily puzzles, permanent shareable puzzle numbers, pencil marks, dark mode, and no sign-up. This game needs JavaScript to play.</p>
+      <p>Zaney Sudoku is a free browser sudoku site with over 1.7 million puzzles across four games — killer sudoku, classic sudoku, Sudoku X and Hyper Sudoku — every one machine-verified to have exactly one solution. Four daily puzzles, permanent shareable puzzle numbers, pencil marks, dark mode, and no sign-up. This game needs JavaScript to play.</p>
       <p><a href="killer-sudoku-rules.html">How to play killer sudoku</a> · <a href="classic-sudoku.html">Classic sudoku</a> · <a href="sudoku-x.html">Sudoku X</a> · <a href="hyper-sudoku.html">Hyper Sudoku</a> · <a href="daily-sudoku.html">Daily sudoku</a></p>
     </div>
   </noscript>
@@ -465,6 +475,7 @@ footer a{color:var(--muted)}
         </div>
       </div>
       <div class="combostrip" id="dailyStrip" style="margin:0 auto 10px"></div>
+      <div class="modehint" id="modeHint"></div>
       <div class="playarea">
       <div class="board-wrap">
         <div id="board" tabindex="0" aria-label="Killer sudoku board"></div>
@@ -513,7 +524,7 @@ footer a{color:var(--muted)}
   <section class="view" id="viewBrowse">
     <div class="browse-head">
       <h1>1.7 million puzzles.<br><em>Zero dead ends.</em></h1>
-      <p>Zaney Sudoku is a free online sudoku site with over 1.7 million puzzles across four games — <strong>killer sudoku</strong>, <strong>classic sudoku</strong>, <strong>Sudoku X</strong> and <strong>Hyper Sudoku</strong> — every one machine-verified to have exactly one solution before it reaches your screen. Killer is the main event, with five difficulties from Easy up to Nightmare. There are three <a href="#/daily" style="color:var(--violet)">daily puzzles</a>, and <a href="#/cowards" style="color:var(--violet)">classic sudoku</a> includes a true beginner mode that teaches the game one step at a time.</p>
+      <p>Zaney Sudoku is a free online sudoku site with over 1.7 million puzzles across four games — <strong>killer sudoku</strong>, <strong>classic sudoku</strong>, <strong>Sudoku X</strong> and <strong>Hyper Sudoku</strong> — every one machine-verified to have exactly one solution before it reaches your screen. Killer is the main event, with five difficulties from Easy up to Nightmare. There are four <a href="#/daily" style="color:var(--violet)">daily puzzles</a>, and <a href="#/cowards" style="color:var(--violet)">classic sudoku</a> includes a true beginner mode that teaches the game one step at a time.</p>
     </div>
     <div class="diff-grid" id="diffGrid"></div>
     <p class="browse-note" id="bResume" style="margin-top:14px"></p>
@@ -602,6 +613,7 @@ footer a{color:var(--muted)}
             <option value="dkiller">Daily (Killer)</option>
             <option value="dclassic">Daily Classic</option>
             <option value="dx">Daily X</option>
+            <option value="dhyper">Daily Hyper</option>
           </select>
           <select id="solDiff" style="background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 10px;font-size:15px"></select>
           <input id="solNum" type="number" min="1" placeholder="Puzzle #" style="width:120px;background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-size:16px">
@@ -1099,6 +1111,7 @@ function dailyClassicDiff(dayN){
   return (wd===1||wd===2)?"easy":(wd===3||wd===4)?"medium":"hard";
 }
 function dailyXDiff(dayN){return dailyDiffFor(dayN);}
+function dailyHyperDiff(dayN){return dailyDiffFor(dayN);}
 /* =====================================================================
    UI
    ===================================================================== */
@@ -1426,8 +1439,25 @@ function requestDeal(num,diff,kind,cb){
 }
 
 /* ---------- open / win ---------- */
+const MODE_RULES={
+  killer:"<b>Killer sudoku:</b> no starting digits — instead, each dashed cage's numbers add up to its corner total, with no repeats inside a cage. Rows, columns and 3×3 boxes still hold 1–9.",
+  classic:"<b>Classic sudoku:</b> fill every row, column and 3×3 box with the digits 1–9, once each. No cages, no twists.",
+  cowards:"<b>Coward's sudoku:</b> classic rules, and there's always an obvious next move — solvable one clear step at a time, no guessing ever.",
+  x:"<b>Sudoku X:</b> classic rules plus both shaded diagonals must also hold 1–9. The centre cell sits on both — start there.",
+  hyper:"<b>Hyper sudoku:</b> classic rules plus four extra shaded 3×3 windows that must each hold 1–9. Thirteen boxes on one grid."
+};
+function modeHintKey(){return "zs_seen_hint_"+(G.kind==="classic"&&G.diff==="cowards"?"cowards":G.kind);}
+function showModeHint(){
+  const el=$("#modeHint");
+  const key=modeHintKey();
+  const which=(G.kind==="classic"&&G.diff==="cowards")?"cowards":G.kind;
+  if(store.get(key,false)){el.classList.remove("on");return;}
+  el.innerHTML="<span>"+MODE_RULES[which]+"</span><span class='x' title='Got it' role='button'>✕</span>";
+  el.classList.add("on");
+  el.querySelector(".x").addEventListener("click",()=>{store.set(key,true);el.classList.remove("on");});
+}
 function puzzleTitle(){
-  if(G.isDaily)return (G.kind==="classic"?"Daily Classic #":G.kind==="x"?"Daily X #":"Daily #")+G.dayN;
+  if(G.isDaily)return (G.kind==="classic"?"Daily Classic #":G.kind==="x"?"Daily X #":G.kind==="hyper"?"Daily Hyper #":"Daily #")+G.dayN;
   const n="#"+G.num.toLocaleString("en-GB");
   if(G.kind==="classic")
     return (G.diff==="cowards"?"Coward's":"Classic "+DIFF_LABEL[G.diff])+" "+n;
@@ -1472,11 +1502,11 @@ function openPuzzle(num,diff,daily,dayN,kind){
             : G.cages.length+" cages · unique solution verified";
     $("#clockTxt").textContent=fmtTime(G.elapsed);
     $("#dealing").classList.remove("on");
-    setPaused(false);refresh();startClock();
+    setPaused(false);refresh();startClock();showModeHint();
     if(daily){
       const dn=G.dayN,cur=G.kind;
       const link=(k,label,hash)=>k===cur?"<b style='color:var(--violet)'>"+label+"</b>":"<a href='"+hash+"' style='color:var(--muted)'>"+label+"</a>";
-      $("#dailyStrip").innerHTML="Today's three: "+link("killer","Killer","#/d/"+dn)+" · "+link("classic","Classic","#/dc")+" · "+link("x","Sudoku X","#/dx");
+      $("#dailyStrip").innerHTML="Today's four: "+link("killer","Killer","#/d/"+dn)+" · "+link("classic","Classic","#/dc")+" · "+link("x","Sudoku X","#/dx")+" · "+link("hyper","Hyper","#/dh");
     }else $("#dailyStrip").innerHTML="";
     store.set("zs_last",{kind,diff,num,daily:!!daily,dayN});
     track("puzzle_start",{difficulty:diff,daily:!!daily,kind});
@@ -1506,6 +1536,7 @@ function win(){
   const chain=$("#winChain");
   if(G.isDaily&&G.kind==="killer"){chain.textContent="Play today's Classic →";chain.href="#/dc";chain.style.display="inline-block";}
   else if(G.isDaily&&G.kind==="classic"){chain.textContent="Play today's Sudoku X →";chain.href="#/dx";chain.style.display="inline-block";}
+  else if(G.isDaily&&G.kind==="x"){chain.textContent="Play today's Hyper →";chain.href="#/dh";chain.style.display="inline-block";}
   else chain.style.display="none";
   chain.onclick=()=>$("#winModal").classList.remove("on");
   $("#winModal").classList.add("on");
@@ -1971,7 +2002,7 @@ function resumeHtml(){
   const pk="zs_prog_"+(L.kind==="classic"?"c_":L.kind==="x"?"x_":L.kind==="hyper"?"h_":"")+L.diff+"_"+L.num;
   const prog=store.get(pk,null);
   if(!prog||prog.done)return "";
-  const hash=L.daily?(L.kind==="classic"?"#/dc":L.kind==="x"?"#/dx":"#/d/"+L.dayN):((L.kind==="classic"?"#/c/":L.kind==="x"?"#/x/":L.kind==="hyper"?"#/h/":"#/p/")+L.diff+"/"+L.num);
+  const hash=L.daily?(L.kind==="classic"?"#/dc":L.kind==="x"?"#/dx":L.kind==="hyper"?"#/dh":"#/d/"+L.dayN):((L.kind==="classic"?"#/c/":L.kind==="x"?"#/x/":L.kind==="hyper"?"#/h/":"#/p/")+L.diff+"/"+L.num);
   const name=L.daily?("Daily #"+L.dayN)
     :L.kind==="classic"?((L.diff==="cowards"?"Coward's":"Classic "+DIFF_LABEL[L.diff])+" #"+L.num)
     :L.kind==="x"?("Sudoku X "+DIFF_LABEL[L.diff]+" #"+L.num)
@@ -1981,11 +2012,12 @@ function resumeHtml(){
 }
 
 /* ---------- solutions (gated) ---------- */
-const SOL_DIFFS={killer:DIFFS,classic:CLASSIC_DIFFS,x:X_DIFFS,hyper:H_DIFFS,dkiller:[],dclassic:[],dx:[]};
+const SOL_DIFFS={killer:DIFFS,classic:CLASSIC_DIFFS,x:X_DIFFS,hyper:H_DIFFS,dkiller:[],dclassic:[],dx:[],dhyper:[]};
 function solTarget(mode,diff,num){
   if(mode==="dkiller")return {kind:"killer",num:900000+num,diff:dailyDiffFor(num)};
   if(mode==="dclassic")return {kind:"classic",num:700000+num,diff:dailyClassicDiff(num)};
   if(mode==="dx")return {kind:"x",num:800000+num,diff:dailyXDiff(num)};
+  if(mode==="dhyper")return {kind:"hyper",num:600000+num,diff:dailyHyperDiff(num)};
   return {kind:mode,num,diff};
 }
 let solWorker=null;
@@ -2012,12 +2044,14 @@ function solDeal(mode,diff,num){
   if(mode==="dkiller")return Object.assign(dealPuzzle(900000+num,dailyDiffFor(num)),{kind:"killer"});
   if(mode==="dclassic")return dealClassic(700000+num,dailyClassicDiff(num));
   if(mode==="dx")return dealX(800000+num,dailyXDiff(num));
+  if(mode==="dhyper")return dealHyper(600000+num,dailyHyperDiff(num));
 }
 function solName(mode,P,num){
   const d=DIFF_LABEL[P.diff];
   if(mode==="dkiller")return "Daily #"+num+" ("+d+" killer)";
   if(mode==="dclassic")return "Daily Classic #"+num+" ("+d+")";
   if(mode==="dx")return "Daily X #"+num+" ("+d+")";
+  if(mode==="dhyper")return "Daily Hyper #"+num+" ("+d+")";
   const k=P.kind==="classic"?(P.diff==="cowards"?"Coward's":"Classic "+d):P.kind==="x"?"Sudoku X "+d:P.kind==="hyper"?"Hyper "+d:"Killer "+d;
   return k+" #"+num;
 }
@@ -2290,6 +2324,9 @@ function route(){
   }else if(h.startsWith("#/dx")){
     const d=dailyInfo();
     show("game");openPuzzle(800000+d.dayN,dailyXDiff(d.dayN),true,d.dayN,"x");
+  }else if(h.startsWith("#/dh")){
+    const d=dailyInfo();
+    show("game");openPuzzle(600000+d.dayN,dailyHyperDiff(d.dayN),true,d.dayN,"hyper");
   }else if(h.startsWith("#/cowards")){
     buildCowards();$("#cResume").innerHTML=resumeHtml();show("cowards");
   }else if((m=h.match(/^#\/d\/(\d+)/))){
