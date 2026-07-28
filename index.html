@@ -66,18 +66,32 @@ try{const t=localStorage.getItem("zs_theme");if(t)document.documentElement.datas
   --shadow:0 1px 2px rgba(20,22,32,.06), 0 8px 24px rgba(20,22,32,.06);
 }
 [data-theme="dark"]{
-  --paper:#12141C;
-  --surface:#1B1E2A;
-  --ink:#ECEDF3;
-  --muted:#9BA0B2;
-  --line:#2C303F;
-  --heavy:#B7BBCB;
-  --violet:#8B7DFF;
-  --violet-ink:#A79CFF;
+  --paper:#0A0C12;
+  --surface:#0E1017;
+  --ink:#FFFFFF;
+  --muted:#A8AEC2;
+  --line:#2A2F40;
+  --heavy:#D6DAE8;
+  --violet:#A99CFF;
+  --violet-ink:#C3B8FF;
   --hl:#FFD23F;
-  --err:#FF6B72;
-  --cage:#AEB3C6;
-  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.3);
+  --err:#FF7C82;
+  --cage:#C3C8DA;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.45);
+}
+[data-theme="contrast"]{
+  --paper:#000000;
+  --surface:#000000;
+  --ink:#FFFFFF;
+  --muted:#B9B9C4;
+  --line:#3A3A44;
+  --heavy:#FFFFFF;
+  --violet:#FFE14D;
+  --violet-ink:#FFE14D;
+  --hl:#FFE14D;
+  --err:#FF6169;
+  --cage:#E8E8F0;
+  --shadow:0 1px 2px rgba(0,0,0,.7), 0 8px 24px rgba(0,0,0,.6);
 }
 [data-theme="newsprint"]{
   --paper:#F7F5EE; --surface:#FFFFFF; --ink:#14120E; --muted:#6E6A5E;
@@ -92,16 +106,16 @@ try{const t=localStorage.getItem("zs_theme");if(t)document.documentElement.datas
   --shadow:0 1px 2px rgba(14,58,56,.08), 0 8px 24px rgba(14,58,56,.07);
 }
 [data-theme="noir"]{
-  --paper:#0A0A0D; --surface:#141419; --ink:#F2F2F5; --muted:#8E8E99;
-  --line:#26262E; --heavy:#C9C9D4; --violet:#E3B341; --violet-ink:#F0C55C;
-  --hl:#E3B341; --err:#FF5C64; --cage:#A9A9B8;
-  --shadow:0 1px 2px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.5);
+  --paper:#050507; --surface:#08080B; --ink:#FFFFFF; --muted:#A5A5B2;
+  --line:#242430; --heavy:#E0E0EA; --violet:#FFC947; --violet-ink:#FFD65E;
+  --hl:#FFD65E; --err:#FF6E76; --cage:#C6C6D6;
+  --shadow:0 1px 2px rgba(0,0,0,.6), 0 8px 24px rgba(0,0,0,.55);
 }
 [data-theme="aquarium"]{
-  --paper:#0C1F2E; --surface:#12293C; --ink:#E7F3FA; --muted:#8FB1C4;
-  --line:#1E3A50; --heavy:#A9CFE3; --violet:#35C4E8; --violet-ink:#5ED4F2;
-  --hl:#FFD23F; --err:#FF6B72; --cage:#9FC6DB;
-  --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.35);
+  --paper:#04121C; --surface:#081824; --ink:#FFFFFF; --muted:#9DC0D4;
+  --line:#1B3B52; --heavy:#BFDFF0; --violet:#4FD8FF; --violet-ink:#7FE9FF;
+  --hl:#FFD23F; --err:#FF7C82; --cage:#B8D8EA;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.45);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -209,7 +223,7 @@ main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw
 .cell.sel{background:color-mix(in srgb,var(--hl) 42%,transparent);box-shadow:inset 0 0 0 2.5px var(--violet)}
 .cell.errbg{background:color-mix(in srgb,var(--err) 13%,transparent)}
 .cell .v{
-  font-size:clamp(19px,5.3vw,29px);font-weight:600;color:var(--violet-ink);
+  font-size:clamp(19px,5.3vw,29px);font-weight:700;color:var(--violet-ink);
   position:relative;z-index:2;line-height:1;
 }
 .cell.given .v{color:var(--ink);font-weight:800}
@@ -224,8 +238,10 @@ main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw
   display:flex;align-items:center;justify-content:center;
   visibility:hidden;min-height:0;min-width:0;overflow:hidden;
 }
-/* anchor cells carry the cage-sum label top-left; nudge that one note cell clear of it */
-.cell.anchor .notes span:first-child{align-items:flex-end;justify-content:flex-end;padding-bottom:1px}
+/* anchor cells carry the cage-sum label top-left; drop the notes grid below it
+   and pin the first note bottom-right of its third so 2-digit sums never cover it */
+.cell.anchor .notes{padding-top:13%}
+.cell.anchor .notes span:first-child{align-items:flex-end;justify-content:flex-end;padding-right:1px}
 .cell .notes span.on{visibility:visible}
 .cell.flash{animation:flash .5s ease 3}
 @keyframes flash{50%{background:color-mix(in srgb,var(--err) 35%,transparent)}}
@@ -233,7 +249,7 @@ main{flex:1;width:100%;max-width:1060px;margin:0 auto;padding:8px clamp(14px,4vw
 #cageSvg path{stroke:var(--cage);stroke-width:2.1;fill:none;stroke-dasharray:6 5;stroke-linecap:round}
 #cageSvg rect{fill:var(--surface)}
 #cageSvg rect.xr{fill:var(--violet);opacity:.09;stroke:none}
-#cageSvg text{fill:var(--cage);font-family:Inter;font-size:19px;font-weight:700}
+#cageSvg text{fill:var(--cage);font-family:Inter;font-size:17px;font-weight:700}
 
 .dealing{
   position:absolute;inset:0;z-index:9;border-radius:10px;
@@ -444,7 +460,8 @@ footer a{color:var(--muted)}
         <button data-t="newsprint"><span class="dot" style="background:linear-gradient(135deg,#F7F5EE 50%,#B33A3A 50%)"></span>Newsprint</button>
         <button data-t="seaside"><span class="dot" style="background:linear-gradient(135deg,#EDF6F4 50%,#0E8A7B 50%)"></span>Seaside</button>
         <button data-t="noir"><span class="dot" style="background:linear-gradient(135deg,#0A0A0D 50%,#E3B341 50%)"></span>Noir</button>
-        <button data-t="aquarium"><span class="dot" style="background:linear-gradient(135deg,#0C1F2E 50%,#35C4E8 50%)"></span>Aquarium</button>
+        <button data-t="aquarium"><span class="dot" style="background:linear-gradient(135deg,#04121C 50%,#4FD8FF 50%)"></span>Aquarium</button>
+        <button data-t="contrast"><span class="dot" style="background:linear-gradient(135deg,#000 50%,#FFE14D 50%)"></span>Contrast</button>
       </div>
     </span>
   </nav>
@@ -488,7 +505,7 @@ footer a{color:var(--muted)}
       <div class="pad" id="pad"></div>
       <div class="padrow2">
         <button class="tool" id="noteBtn">✏️ Notes <span style="font-size:11px;color:var(--muted)">(N)</span></button>
-        <button class="tool" id="eraseBtn">⌫ Erase</button>
+        <button class="tool" id="eraseBtn" title="Once clears the digit, twice clears notes">⌫ Erase</button>
         <button class="tool" id="undoBtn">↩ Undo</button>
         <button class="tool" id="paintBtn">🖌 Paint</button>
       </div>
@@ -569,8 +586,14 @@ footer a{color:var(--muted)}
         <div class="stat"><span id="stBest">0</span><label>best streak</label></div>
         <div class="stat"><span id="stTotal">0</span><label>puzzles solved</label></div>
       </div>
-      <table class="stt"><thead><tr><th>Difficulty</th><th>Solved</th><th>Best</th><th>Average</th></tr></thead>
+      <table class="stt"><thead><tr><th>Mode</th><th>Solved</th><th>Best</th><th>Average</th><th title="Empty cells divided by digits you typed — 100% means no corrections">Effic.</th></tr></thead>
       <tbody id="stBody"></tbody></table>
+      <div class="streaks" style="margin-top:16px">
+        <div class="stat"><span id="stEff">—</span><label>overall efficiency</label></div>
+        <div class="stat"><span id="stThink">—</span><label>avg per digit</label></div>
+        <div class="stat"><span id="stTime">—</span><label>total time solving</label></div>
+      </div>
+      <p class="statnote"><b>Efficiency</b> is how many digits you typed versus how many blanks the puzzle had — 100% means you never overwrote a cell. <b>Par</b> times shown on the win screen are our own target benchmarks for each difficulty, not other players' times (nothing you do here is sent to a server).</p>
       <p class="statnote">Stats live in this browser only — no accounts, no servers.</p>
       <a class="linkbtn" href="#/archive">Daily archive →</a>
       <h2 class="vh1" style="font-size:21px;margin:30px 0 6px">Moving devices?</h2>
@@ -1126,11 +1149,24 @@ const store={
 
 let SET={
   errors:  store.get("zs_set_errors", true),
-  autonotes:store.get("zs_set_autonotes", true),
+  autonotes:false,   /* per-mode; resolved by syncAutonotes() when a puzzle opens */
   cagehelp:store.get("zs_set_cagehelp", true),
   zen:     store.get("zs_set_zen", false),
   haptics: store.get("zs_set_haptics", true)
 };
+/* Auto-tidy defaults: on for Coward's (a teaching aid), off everywhere else so
+   the harder modes stay honest. Once toggled for a mode, that choice sticks. */
+function autonotesKey(){
+  if(!G)return "zs_set_autonotes_killer";
+  const m=(G.kind==="classic"&&G.diff==="cowards")?"cowards":G.kind;
+  return "zs_set_autonotes_"+m;
+}
+function autonotesDefault(){
+  return !!(G&&G.kind==="classic"&&G.diff==="cowards");
+}
+function syncAutonotes(){
+  SET.autonotes=store.get(autonotesKey(),autonotesDefault());
+}
 function buzz(ms){if(SET.haptics&&navigator.vibrate)try{navigator.vibrate(ms);}catch(e){}}
 let G=null;            // current game
 let cellEls=[];
@@ -1165,25 +1201,28 @@ function buildBoardDom(){
   }
 }
 
-function cageGeometry(cages,cageOf){
-  const S=100,inset=7;
+function cageGeometry(cages,cageOf,insetTL,insetBR){
+  const S=100;
+  /* Cell borders are painted INSIDE each cell on its right/bottom edges, so an
+     equal inset looks tighter on those sides. Pad right/bottom to compensate. */
+  const iTL=insetTL==null?8:insetTL, iBR=insetBR==null?12:insetBR;
   let path="";
   const diffAt=(i,j)=>j<0||cageOf[i]!==cageOf[j];
   for(let i=0;i<81;i++){
     const r=(i/9)|0,c=i%9,x=c*S,y=r*S;
     const up=diffAt(i,r>0?i-9:-1),dn=diffAt(i,r<8?i+9:-1),
           lf=diffAt(i,c>0?i-1:-1),rt=diffAt(i,c<8?i+1:-1);
-    if(up)path+=`M${x+(lf?inset:0)} ${y+inset}H${x+S-(rt?inset:0)}`;
-    if(dn)path+=`M${x+(lf?inset:0)} ${y+S-inset}H${x+S-(rt?inset:0)}`;
-    if(lf)path+=`M${x+inset} ${y+(up?inset:0)}V${y+S-(dn?inset:0)}`;
-    if(rt)path+=`M${x+S-inset} ${y+(up?inset:0)}V${y+S-(dn?inset:0)}`;
+    if(up)path+=`M${x+(lf?iTL:0)} ${y+iTL}H${x+S-(rt?iBR:0)}`;
+    if(dn)path+=`M${x+(lf?iTL:0)} ${y+S-iBR}H${x+S-(rt?iBR:0)}`;
+    if(lf)path+=`M${x+iTL} ${y+(up?iTL:0)}V${y+S-(dn?iBR:0)}`;
+    if(rt)path+=`M${x+S-iBR} ${y+(up?iTL:0)}V${y+S-(dn?iBR:0)}`;
   }
   let labels="";
   for(const g of cages){
     const a=g.cells[0],r=(a/9)|0,c=a%9;
-    const tx=c*100+10,ty=r*100+26;
-    const w=String(g.sum).length*11+7;
-    labels+=`<rect x="${c*100+5}" y="${r*100+6}" width="${w}" height="22" rx="4"></rect>`;
+    const tx=c*100+11,ty=r*100+24;
+    const w=String(g.sum).length*10+6;
+    labels+=`<rect x="${c*100+6}" y="${r*100+6}" width="${w}" height="20" rx="4"></rect>`;
     labels+=`<text x="${tx}" y="${ty}">${g.sum}</text>`;
   }
   return {path,labels};
@@ -1345,7 +1384,7 @@ function updateComboStrip(){
 
 /* ---------- moves ---------- */
 function progKey(){return "zs_prog_"+(G.kind==="classic"?"c_":G.kind==="x"?"x_":G.kind==="hyper"?"h_":"")+G.diff+"_"+G.num;}
-function save(){store.set(progKey(),{v:Array.from(G.val),n:Array.from(G.notes),p:Array.from(G.paint),a:G.assists,t:G.elapsed,done:G.done,
+function save(){store.set(progKey(),{v:Array.from(G.val),n:Array.from(G.notes),p:Array.from(G.paint),a:G.assists,e:G.entries,t:G.elapsed,done:G.done,
   u:G.undo.slice(-30).map(s=>({v:Array.from(s.v),n:Array.from(s.n)}))});}
 function snapshot(){G.undo.push({v:G.val.slice(),n:G.notes.slice()});if(G.undo.length>300)G.undo.shift();}
 function select(i){if(G.done)return;G.sel=i;$("#board").focus({preventScroll:true});refresh();}
@@ -1355,9 +1394,12 @@ function place(d){
   if(noteMode&&d>0&&!G.val[G.sel]){
     G.notes[G.sel]^= (1<<d);
   }else if(d===0){
-    G.val[G.sel]=0;G.notes[G.sel]=0;
+    /* first press clears the digit but keeps pencil marks; second clears notes */
+    if(G.val[G.sel]){G.val[G.sel]=0;}
+    else{G.notes[G.sel]=0;}
   }else{
-    G.val[G.sel]=d;G.notes[G.sel]=0;
+    G.val[G.sel]=d;   /* this cell's own notes are kept, just hidden while a digit shows */
+    G.entries++;
     buzz(8);
     if(SET.autonotes){
       const r=(G.sel/9)|0,c=G.sel%9,b=((r/3)|0)*3+((c/3)|0);
@@ -1465,6 +1507,15 @@ function puzzleTitle(){
   if(G.kind==="hyper")return "Hyper "+DIFF_LABEL[G.diff]+" "+n;
   return DIFF_LABEL[G.diff]+" "+n;
 }
+/* Par times are our own target benchmarks per mode/difficulty (seconds), not
+   crowd-sourced averages — the site has no server collecting player times. */
+const PAR={
+  killer:{easy:300,medium:600,hard:900,expert:1500,nightmare:2400},
+  classic:{cowards:240,easy:300,medium:480,hard:720},
+  x:{easy:360,medium:540,hard:840,expert:1200},
+  hyper:{easy:360,medium:540,hard:840,expert:1200}
+};
+function parTime(){const t=PAR[G.kind];return (t&&t[G.diff])||600;}
 function statKey(){return (G.kind==="classic"?"classic_":G.kind==="x"?"x_":G.kind==="hyper"?"h_":"")+G.diff;}
 function openPuzzle(num,diff,daily,dayN,kind){
   kind=kind||"killer";
@@ -1477,12 +1528,15 @@ function openPuzzle(num,diff,daily,dayN,kind){
   requestDeal(num,diff,kind,P=>{
     G={...P,kind,isDaily:!!daily,dayN,
        val:new Uint8Array(81),notes:new Uint16Array(81),paint:new Uint8Array(81),
-       sel:-1,undo:[],assists:0,hintCell:-1,elapsed:0,paused:false,done:false};
+       sel:-1,undo:[],assists:0,hintCell:-1,elapsed:0,paused:false,done:false,
+       entries:0,blanks:0};
     for(let i=0;i<81;i++)if(G.given[i])G.val[i]=G.sol[i];
+    G.blanks=81-G.given.reduce((s,v)=>s+v,0);
     const saved=store.get(progKey(),null);
     if(saved&&saved.v&&!saved.done){
       for(let i=0;i<81;i++)if(!G.given[i]){G.val[i]=saved.v[i]||0;G.notes[i]=saved.n[i]||0;}
       if(saved.p)for(let i=0;i<81;i++)G.paint[i]=saved.p[i]||0;
+      G.entries=saved.e||0;
       if(saved.u)G.undo=saved.u.map(s=>({v:Uint8Array.from(s.v),n:Uint16Array.from(s.n)}));
       G.assists=saved.a||0;
       G.elapsed=saved.t||0;
@@ -1502,6 +1556,7 @@ function openPuzzle(num,diff,daily,dayN,kind){
             : G.cages.length+" cages · unique solution verified";
     $("#clockTxt").textContent=fmtTime(G.elapsed);
     $("#dealing").classList.remove("on");
+    syncAutonotes();syncToggles();
     setPaused(false);refresh();startClock();showModeHint();
     if(daily){
       const dn=G.dayN,cur=G.kind;
@@ -1509,6 +1564,11 @@ function openPuzzle(num,diff,daily,dayN,kind){
       $("#dailyStrip").innerHTML="Today's four: "+link("killer","Killer","#/d/"+dn)+" · "+link("classic","Classic","#/dc")+" · "+link("x","Sudoku X","#/dx")+" · "+link("hyper","Hyper","#/dh");
     }else $("#dailyStrip").innerHTML="";
     store.set("zs_last",{kind,diff,num,daily:!!daily,dayN});
+    if(!daily){
+      const seen=store.get("zs_lastnum",{});
+      seen[kind+"_"+diff]=num;
+      store.set("zs_lastnum",seen);
+    }
     track("puzzle_start",{difficulty:diff,daily:!!daily,kind});
   });
 }
@@ -1522,6 +1582,13 @@ function win(){
   if(!s.best||G.elapsed<s.best)s.best=G.elapsed;
   store.set("zs_stats",st);
   const isPB=prevBest>0&&G.elapsed<prevBest;
+  s.ent=(s.ent||0)+G.entries;
+  s.blk=(s.blk||0)+G.blanks;
+  store.set("zs_stats",st);
+  const eff=G.entries?Math.min(100,Math.round(G.blanks/G.entries*100)):100;
+  const think=G.entries?G.elapsed/G.entries:0;
+  const par=parTime();
+  const prevAvg=(s.n>1)?Math.round((s.tot-G.elapsed)/(s.n-1)):0;
   const done=store.get("zs_done_"+sk,[]);
   if(done.indexOf(G.num)===-1){done.push(G.num);store.set("zs_done_"+sk,done);}
   if(G.isDaily){
@@ -1530,8 +1597,21 @@ function win(){
     store.set("zs_daily",log);
   }
   track("puzzle_complete",{difficulty:G.diff,seconds:G.elapsed,daily:!!G.isDaily,assists:G.assists,kind:G.kind});
-  $("#winTxt").textContent=puzzleTitle()+" solved in "+fmtTime(G.elapsed)+"."
-    +(isPB?" 🏆 New personal best for this difficulty!":" Every unit checks out.");
+  const vsPar=par-G.elapsed;
+  const parLine=vsPar>=0
+    ? "<b style='color:#3BA55D'>"+fmtTime(vsPar)+" under par</b> ("+fmtTime(par)+")"
+    : "<b>"+fmtTime(-vsPar)+" over par</b> ("+fmtTime(par)+")";
+  const avgLine=prevAvg
+    ? (G.elapsed<prevAvg
+        ? "faster than your average of "+fmtTime(prevAvg)
+        : "your average is "+fmtTime(prevAvg))
+    : "first solve at this level";
+  $("#winTxt").innerHTML=
+    "<span style='font-size:17px;color:var(--ink)'>"+puzzleTitle()+" in <b>"+fmtTime(G.elapsed)+"</b></span>"
+    +(isPB?"<br>🏆 <b style='color:var(--violet)'>New personal best!</b>":"")
+    +"<br>"+parLine
+    +"<br><span style='font-size:13px'>"+avgLine+" · efficiency "+eff+"% · "
+    +think.toFixed(1)+"s per digit</span>";
   buzz(30);
   const chain=$("#winChain");
   if(G.isDaily&&G.kind==="killer"){chain.textContent="Play today's Classic →";chain.href="#/dc";chain.style.display="inline-block";}
@@ -1586,8 +1666,8 @@ $("#errToggle").addEventListener("click",()=>{
   toast(SET.errors?"Mistakes will be highlighted":"Flying blind — good luck");
 });
 $("#tidyToggle").addEventListener("click",()=>{
-  SET.autonotes=!SET.autonotes;store.set("zs_set_autonotes",SET.autonotes);syncToggles();
-  toast(SET.autonotes?"Notes tidy themselves when you place a digit":"Notes are all yours now");
+  SET.autonotes=!SET.autonotes;store.set(autonotesKey(),SET.autonotes);syncToggles();
+  toast(SET.autonotes?"Notes tidy themselves in this mode":"Notes are all yours in this mode");
 });
 syncToggles();
 $("#noteBtn").addEventListener("click",()=>{noteMode=!noteMode;$("#noteBtn").classList.toggle("on",noteMode);});
@@ -1747,6 +1827,7 @@ function buildBrowse(){
       location.hash="#/p/"+d+"/"+(1+((Math.random()*MAX_NUM)|0));
     });
     grid.appendChild(card);
+    applyLastNum(card,"killer",d);
   }
 }
 
@@ -1768,7 +1849,7 @@ function puzzleSVG(P,withSolution){
   }
   let cageLayer="";
   if(P.cages&&P.cages.length){
-    const geo=cageGeometry(P.cages,P.cageOf);
+    const geo=cageGeometry(P.cages,P.cageOf,9,9);
     cageLayer=`<g fill="none" stroke="#555" stroke-width="2" stroke-dasharray="6 5"><path d="${geo.path}"/></g>`+
       `<g font-family="Inter,sans-serif" font-size="20" font-weight="bold">${geo.labels.replace(/<rect /g,'<rect fill="#fff" ').replace(/<text /g,'<text fill="#333" ')}</g>`;
   }
@@ -1820,7 +1901,8 @@ function maybeTutorial(){if(!store.get("zs_seen_tut",false)){tutN=0;tutShow();}}
 const BK_KEYS=["zs_stats","zs_daily","zs_done_easy","zs_done_medium","zs_done_hard","zs_done_expert",
   "zs_done_classic_cowards","zs_done_classic_easy","zs_done_classic_medium","zs_done_classic_hard",
   "zs_done_x_easy","zs_done_x_medium","zs_done_x_hard","zs_done_x_expert",
-  "zs_done_nightmare","zs_done_h_easy","zs_done_h_medium","zs_done_h_hard","zs_done_h_expert","zs_last",
+  "zs_done_nightmare","zs_done_h_easy","zs_done_h_medium","zs_done_h_hard","zs_done_h_expert",
+  "zs_last","zs_lastnum",
   "zs_set_errors","zs_set_autonotes","zs_set_cagehelp","zs_set_zen","zs_set_haptics","zs_theme","zs_seen_tut"];
 $("#expBtn").addEventListener("click",async()=>{
   const data={};
@@ -1866,10 +1948,16 @@ function renderStats(){
   ];
   $("#stBody").innerHTML=rows.map(([k,label])=>{
     const s=st[k];
+    const eff=(s&&s.ent)?Math.min(100,Math.round(s.blk/s.ent*100))+"%":"—";
     return "<tr><td>"+label+"</td>"+(s
-      ?"<td>"+s.n+"</td><td>"+fmtTime(s.best)+"</td><td>"+fmtTime(Math.round(s.tot/s.n))+"</td>"
-      :"<td>—</td><td>—</td><td>—</td>")+"</tr>";
+      ?"<td>"+s.n+"</td><td>"+fmtTime(s.best)+"</td><td>"+fmtTime(Math.round(s.tot/s.n))+"</td><td>"+eff+"</td>"
+      :"<td>—</td><td>—</td><td>—</td><td>—</td>")+"</tr>";
   }).join("");
+  let tEnt=0,tBlk=0,tTot=0;
+  Object.keys(st).forEach(k=>{const s=st[k];if(!s)return;tEnt+=s.ent||0;tBlk+=s.blk||0;tTot+=s.tot||0;});
+  $("#stEff").textContent=tEnt?Math.min(100,Math.round(tBlk/tEnt*100))+"%":"—";
+  $("#stThink").textContent=tEnt?(tTot/tEnt).toFixed(1)+"s":"—";
+  $("#stTime").textContent=tTot?(tTot>=3600?Math.round(tTot/3600)+"h":Math.round(tTot/60)+"m"):"—";
 }
 function renderArchive(){
   const log=store.get("zs_daily",{});
@@ -1921,6 +2009,7 @@ function buildCowards(){
       location.hash="#/c/"+d+"/"+(1+((Math.random()*MAX_NUM)|0));
     });
     grid.appendChild(card);
+    applyLastNum(card,"classic",d);
   }
 }
 
@@ -1957,6 +2046,7 @@ function buildX(){
       location.hash="#/x/"+d+"/"+(1+((Math.random()*MAX_NUM)|0));
     });
     grid.appendChild(card);
+    applyLastNum(card,"x",d);
   }
 }
 
@@ -1992,7 +2082,30 @@ function buildHyper(){
       location.hash="#/h/"+d+"/"+(1+((Math.random()*MAX_NUM)|0));
     });
     grid.appendChild(card);
+    applyLastNum(card,"hyper",d);
   }
+}
+
+/* ---------- last-played memory for puzzle pickers ---------- */
+function lastNumFor(kind,diff){
+  const seen=store.get("zs_lastnum",{});
+  return seen[kind+"_"+diff]||0;
+}
+/* Prefill the picker with the next puzzle and show what you last played. */
+function applyLastNum(card,kind,diff){
+  const last=lastNumFor(kind,diff);
+  if(!last)return;
+  const input=card.querySelector("input");
+  const next=Math.min(last+1,MAX_NUM);
+  input.value=next;
+  input.placeholder=String(next);
+  const note=document.createElement("div");
+  note.className="meta";
+  note.style.cssText="margin:8px 0 0;font-size:12px";
+  const hash=(kind==="classic"?"#/c/":kind==="x"?"#/x/":kind==="hyper"?"#/h/":"#/p/")+diff+"/";
+  note.innerHTML="Last played <a href='"+hash+last+"' style='color:var(--violet);font-weight:600'>#"+
+    last.toLocaleString("en-GB")+"</a> · next up #"+next.toLocaleString("en-GB");
+  card.appendChild(note);
 }
 
 /* ---------- resume-last chip ---------- */
